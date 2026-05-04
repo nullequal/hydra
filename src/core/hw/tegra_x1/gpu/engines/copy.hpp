@@ -124,19 +124,19 @@ class Copy : public EngineWithRegsBase<RegsCopy> {
     // Commands
     struct LaunchDMAData {
         TransferType type : 2;
-        bool flush_enable : 1;
+        u32 flush_enable : 1;
         SemaphoreType semaphore_type : 2;
         InterruptType interrupt_type : 2;
         MemoryLayout src_memory_layout : 1;
         MemoryLayout dst_memory_layout : 1;
-        bool multi_line_enable : 1;
-        bool remap_enable : 1;
-        bool force_rmw_disable : 1;
-        bool src_memory_is_physical : 1;
-        bool dst_memory_is_physical : 1;
+        u32 multi_line_enable : 1;
+        u32 remap_enable : 1;
+        u32 force_rmw_disable : 1;
+        u32 src_memory_is_physical : 1;
+        u32 dst_memory_is_physical : 1;
         SemaphoreReduction semaphore_reduction : 4;
-        bool semaphore_reduction_unsigned : 1;
-        bool semaphore_reduction_enable : 1;
+        u32 semaphore_reduction_unsigned : 1;
+        u32 semaphore_reduction_enable : 1;
         BypassL2 bypass_l2 : 1;
     };
 

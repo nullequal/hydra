@@ -1,7 +1,8 @@
 #include "frontend/sdl3/window.hpp"
 
 #include "core/horizon/loader/loader_base.hpp"
-#include "core/input/device_manager.hpp"
+
+// #include "core/input/device_manager.hpp"
 
 namespace hydra::frontend::sdl3 {
 
@@ -12,7 +13,9 @@ Window::Window(int argc, const char* argv[]) : emulation_context(*this) {
         return;
     }
 
+#ifdef PLATFORM_APPLE
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal");
+#endif
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
 
     if (!SDL_CreateWindowAndRenderer(APP_NAME, 1280, 720, SDL_WINDOW_RESIZABLE,
@@ -32,7 +35,7 @@ Window::Window(int argc, const char* argv[]) : emulation_context(*this) {
 }
 
 Window::~Window() {
-    INPUT_DEVICE_MANAGER_INSTANCE.DisconnectTouchScreenDevice("cursor");
+    // INPUT_DEVICE_MANAGER_INSTANCE.DisconnectTouchScreenDevice("cursor");
 
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -116,16 +119,20 @@ Window::ShowSoftwareKeyboard(const std::string& header_text,
                              const std::string& sub_text,
                              const std::string& guide_text,
                              std::string& out_text) {
+    /*
     return native.ShowInputTextDialog(header_text, sub_text, guide_text,
                                       out_text)
                ? horizon::applets::software_keyboard::SoftwareKeyboardResult::OK
                : horizon::applets::software_keyboard::SoftwareKeyboardResult::
                      Cancel;
+    */
+    return horizon::applets::software_keyboard::SoftwareKeyboardResult::
+                     Cancel;
 }
 
 void Window::BeginEmulation(const std::string& path) {
     // Connect cursor as a touch screen device
-    INPUT_DEVICE_MANAGER_INSTANCE.ConnectTouchScreenDevice("cursor", &cursor);
+    // INPUT_DEVICE_MANAGER_INSTANCE.ConnectTouchScreenDevice("cursor", &cursor);
 
     emulation_context.SetSurface(SDL_GetRenderMetalLayer(renderer));
     // TODO: support loading applets from firmware

@@ -1,8 +1,15 @@
 #include "core/debugger/gdb_server.hpp"
 
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#else
+#include <winsock2.h>
+#include <ws2def.h>
+#include <ws2tcpip.h>
+#undef SendMessage
+#endif
 
 #include <nx2elf.h>
 
@@ -73,6 +80,15 @@ T hex_to_number(std::string_view hex) {
             << (i * 8);
 
     return value;
+}
+
+bool is_fatal(socket_t value) {
+    return
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
+        value == -1;
+#else
+        value == INVALID_SOCKET && WSAGetLastError() != 10035;
+#endif
 }
 
 std::string_view get_target_xml_aarch64() {
@@ -244,17 +260,24 @@ GdbServer::GdbServer(Debugger& debugger_) : debugger{debugger_} {
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if (bind(server_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) ==
-        -1) {
+    if (is_fatal(bind(server_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)))) {
         LOG_ERROR(Debugger, "Failed to bind GDB socket");
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
         close(server_socket);
+#else
+        closesocket(server_socket);
+#endif
         return;
     }
 
     // Start listening
-    if (listen(server_socket, 1) == -1) {
+    if (is_fatal(listen(server_socket, 1))) {
         LOG_ERROR(Debugger, "Failed to listen on GDB socket");
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
         close(server_socket);
+#else
+        closesocket(server_socket);
+#endif
         return;
     }
 
@@ -274,7 +297,11 @@ GdbServer::GdbServer(Debugger& debugger_) : debugger{debugger_} {
 GdbServer::~GdbServer() {
     running = false;
     server_thread.join();
-    close(server_socket);
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_APPLE)
+        close(server_socket);
+#else
+        closesocket(server_socket);
+#endif
 }
 
 void GdbServer::NotifySupervisorPaused(horizon::kernel::GuestThread* thread,
@@ -307,8 +334,12 @@ void GdbServer::BreakpointHit(horizon::kernel::GuestThread* thread) {
 }
 
 void GdbServer::CloseClientSocket() {
-    ASSERT(client_socket != -1, Debugger, "Client socket is not open");
-    close(client_socket);
+    ASSERT(!is_fatal(client_socket), Debugger, "Client socket is not open");
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_APPLE)
+        close(client_socket);
+#else
+        closesocket(client_socket);
+#endif
     client_socket = -1;
     LOG_INFO(Debugger, "GDB client disconnected");
 }
@@ -324,10 +355,10 @@ void GdbServer::ServerLoop() {
 }
 
 void GdbServer::Poll() {
-    if (client_socket == -1) {
+    if (is_fatal(client_socket)) {
         sockaddr_in client_addr{};
         socklen_t addr_len = sizeof(client_addr);
-        i32 new_client =
+        socket_t new_client =
             accept(server_socket, (sockaddr*)&client_addr, &addr_len);
 
         if (new_client != -1) {
@@ -716,7 +747,7 @@ void GdbServer::HandleGetExecutables() {
 }
 
 void GdbServer::SendPacket(std::string_view data) {
-    ASSERT_DEBUG(client_socket != -1, Debugger, "Client socket is not valid");
+    ASSERT_DEBUG(!is_fatal(client_socket), Debugger, "Client socket is not valid");
 
     u8 checksum = 0;
     for (char c : data)
@@ -732,13 +763,18 @@ void GdbServer::SendStatus(char status) {
     if (!do_ack)
         return;
 
-    ASSERT_DEBUG(client_socket != -1, Debugger, "Client socket is not valid");
+    ASSERT_DEBUG(!is_fatal(client_socket), Debugger, "Client socket is not valid");
     send(client_socket, &status, 1, 0);
 }
 
-void GdbServer::SetNonBlocking(i32 socket) {
+void GdbServer::SetNonBlocking(socket_t socket) {
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
     i32 flags = fcntl(socket, F_GETFL, 0);
     fcntl(socket, F_SETFL, flags | O_NONBLOCK);
+#else
+    unsigned long mode = 1;
+    ioctlsocket(socket, FIONBIO, &mode);
+#endif
 }
 
 std::string GdbServer::ReadReg(u32 id) {

@@ -74,9 +74,15 @@ void AddFile(void* plugin, filesystem::Directory* dir,
 } // namespace
 
 Plugin::Plugin(const std::string& path) {
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
     library = dlopen(path.data(), RTLD_LAZY);
     ASSERT_THROWING(library, Loader, Error::LoadFailed,
                     "Failed to load plugin at path {}: {}", path, dlerror());
+#else
+    library = LoadLibrary(path.data());
+    ASSERT_THROWING(library, Loader, Error::LoadFailed,
+                    "Failed to load plugin at path {}: {}", path, GetLastError());
+#endif
 
     // Functions
     get_api_version =
@@ -171,7 +177,11 @@ Plugin::Plugin(const std::string& path,
 Plugin::~Plugin() {
     if (context)
         DestroyContext();
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
     dlclose(library);
+#else
+    FreeLibrary(library);
+#endif
 }
 
 NxLoader* Plugin::Load(std::string_view path) {

@@ -38,7 +38,7 @@
 #define SINGLETON_UNSET_INSTANCE() g_instance = nullptr
 
 #define BIT(n) (1u << (n))
-#define BITL(n) (1ul << (n))
+#define BITL(n) (1ull << (n))
 
 #define UNDERLYING(t) std::underlying_type_t<t>
 

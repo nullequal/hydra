@@ -1,6 +1,11 @@
 #pragma once
 
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
 #include <dlfcn.h>
+#else
+#include <errhandlingapi.h>
+#include <libloaderapi.h>
+#endif
 
 #include "core/horizon/loader/plugins/api.hpp"
 
@@ -66,7 +71,11 @@ class Plugin {
     void StreamReadRaw(void* stream, std::span<u8> buffer);
 
   private:
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
     void* library;
+#else
+    HMODULE library;
+#endif
 
     // Functions
     api::GetApiVersionFnT get_api_version;
@@ -150,7 +159,11 @@ class Plugin {
             break;
         }
 
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
         const auto func = dlsym(library, symbol_name.data());
+#else
+        const auto func = GetProcAddress(library, symbol_name.data());
+#endif
         ASSERT_THROWING(func != nullptr, Loader,
                         GetFunctionError::SymbolNotFound,
                         "Failed to load symbol \"{}\"", symbol_name);

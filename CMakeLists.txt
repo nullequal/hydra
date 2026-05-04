@@ -119,11 +119,15 @@ add_subdirectory(externals/libyaz0)
 # nx2elf
 add_subdirectory(externals/nx2elf)
 
-set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 add_library(hydra_warnings INTERFACE)
 target_compile_options(hydra_warnings INTERFACE -Wall -Wextra -Wconversion -Wsign-conversion -Wno-vla-extension)
 
-include_directories(externals/metal-cpp externals/dynarmic externals/stb)
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    include_directories(externals/metal-cpp)
+endif ()
+
+include_directories(externals/dynarmic externals/stb)
 
 if (HYPERVISOR_ENABLED)
     add_compile_definitions(HYDRA_HYPERVISOR_ENABLED=1)

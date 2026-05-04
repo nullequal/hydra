@@ -5,6 +5,7 @@
 #include "core/horizon/kernel/process.hpp"
 #include "core/hw/tegra_x1/cpu/thread.hpp"
 
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
 #define GET_THIS_THREAD()                                                      \
     std::unique_lock lock(mutex);                                              \
     const auto thread_id = std::this_thread::get_id();                         \
@@ -13,6 +14,16 @@
                  "Thread {:016x} not registered",                              \
                  std::bit_cast<u64>(thread_id));                               \
     [[maybe_unused]] auto& thread = it->second;
+#else
+#define GET_THIS_THREAD()                                                      \
+    std::unique_lock lock(mutex);                                              \
+    const auto thread_id = std::this_thread::get_id();                         \
+    auto it = threads.find(thread_id);                                         \
+    ASSERT_DEBUG(it != threads.end(), Debugger,                                \
+                 "Thread {:016x} not registered",                              \
+                 std::bit_cast<u32>(thread_id));                               \
+    [[maybe_unused]] auto& thread = it->second;
+#endif
 
 namespace hydra::debugger {
 

@@ -5,8 +5,10 @@
 #include "frontend/sdl3/cursor.hpp"
 
 // TODO: if macOS
+#ifdef PLATFORM_APPLE
 #include "frontend/native/cocoa/native.hpp"
 using Native = hydra::frontend::native::cocoa::Native;
+#endif
 
 namespace hydra::frontend::sdl3 {
 
@@ -31,7 +33,9 @@ class Window : public horizon::ui::HandlerBase {
     SDL_Window* window;
     SDL_Renderer* renderer;
 
+#ifdef PLATFORM_APPLE
     Native native;
+#endif
     Cursor cursor;
 
     EmulationContext emulation_context;

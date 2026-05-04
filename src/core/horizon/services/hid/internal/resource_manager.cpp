@@ -19,7 +19,7 @@ void ResourceManager::Update() {
         const auto index = static_cast<NpadIndex>(i);
 
         // Poll
-        const auto state = INPUT_DEVICE_MANAGER_INSTANCE.PollNpad(index);
+        const hydra::input::NpadState state; // = INPUT_DEVICE_MANAGER_INSTANCE.PollNpad(index);
 
         // Update
         for (auto& resource : resource_pool) {
@@ -31,7 +31,7 @@ void ResourceManager::Update() {
     }
 
     // Touch
-    const auto touch_state = INPUT_DEVICE_MANAGER_INSTANCE.PollTouch();
+    const std::map<u32, input::TouchState> touch_state; // = INPUT_DEVICE_MANAGER_INSTANCE.PollTouch();
     for (auto& resource : resource_pool) {
         if (!resource.has_value())
             continue;

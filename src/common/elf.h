@@ -19,7 +19,7 @@
 #ifndef _ELF_H
 #define _ELF_H 1
 
-__BEGIN_DECLS
+extern "C" {
 
 /* Standard ELF types.  */
 
@@ -4020,6 +4020,6 @@ with unsigned low */
 #define R_NDS32_TLS_TPOFF 102
 #define R_NDS32_TLS_DESC 119
 
-__END_DECLS
+}
 
 #endif /* elf.h */

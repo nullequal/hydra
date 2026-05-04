@@ -592,9 +592,9 @@ class ThreeD : public EngineWithRegsBase<Regs3D>, public InlineBase {
     void DrawVertexElements(const u32 index, u32 count);
 
     struct ClearBufferData {
-        bool depth : 1;
-        bool stencil : 1;
-        u8 color_mask : 4;
+        u32 depth : 1;
+        u32 stencil : 1;
+        u32 color_mask : 4;
         u32 target_id : 4;
         u32 layer_id : 11;
     };

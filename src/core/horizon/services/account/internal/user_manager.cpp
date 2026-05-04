@@ -94,7 +94,11 @@ uuid_t UserManager::CreateUser() {
 void UserManager::LoadSystemAvatars(filesystem::Filesystem& fs) {
     // Default avatar
     const auto default_image_path =
+#ifdef PLATFORM_APPLE
         get_bundle_resource_path("default_avatar_image.png");
+#else
+        "default_avatar_image.png";
+#endif
     avatars[DEFAULT_AVATAR_IMAGE_PATH] = {
         new filesystem::DiskFile(default_image_path)};
 

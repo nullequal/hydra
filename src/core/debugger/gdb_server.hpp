@@ -8,6 +8,12 @@ class GuestThread;
 
 namespace hydra::debugger {
 
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
+using socket_t = i32;
+#else
+using socket_t = u64;
+#endif
+
 class Thread;
 class Debugger;
 
@@ -27,8 +33,8 @@ class GdbServer {
 
     std::mutex mutex;
 
-    i32 server_socket;
-    i32 client_socket{-1};
+    socket_t server_socket;
+    socket_t client_socket{static_cast<socket_t>(-1)};
     std::thread server_thread;
     std::atomic<bool> running{true};
     std::string receive_buffer;
@@ -65,7 +71,7 @@ class GdbServer {
     void HandleGetExecutables();
 
     // Helpers
-    void SetNonBlocking(i32 socket);
+    void SetNonBlocking(socket_t socket);
     std::string ReadReg(u32 id);
     std::string GetThreadStatus(horizon::kernel::GuestThread* thread,
                                 Signal signal);
