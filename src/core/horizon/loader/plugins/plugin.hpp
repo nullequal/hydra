@@ -19,6 +19,12 @@ class NxLoader;
 
 namespace hydra::horizon::loader::plugins {
 
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
+using library_t = void*
+#else
+using library_t = HMODULE;
+#endif
+
 struct OptionConfig {
     std::string_view name;
     std::string_view description;
@@ -71,11 +77,7 @@ class Plugin {
     void StreamReadRaw(void* stream, std::span<u8> buffer);
 
   private:
-#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
-    void* library;
-#else
-    HMODULE library;
-#endif
+    library_t library;
 
     // Functions
     api::GetApiVersionFnT get_api_version;

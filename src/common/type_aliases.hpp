@@ -28,6 +28,13 @@ using vaddr_t = u64;
 using gpu_vaddr_t = u64;
 using handle_id_t = u32;
 
+#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
+using thread_id_t = u64;
+#else
+using thread_id_t = u32;
+#endif
+
 constexpr handle_id_t INVALID_HANDLE_ID = 0;
+
 
 } // namespace hydra

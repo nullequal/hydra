@@ -234,11 +234,7 @@ class Logger {
                 // Debug info
                 fmt::print(
                     fmt::fg(color), "{:016x} |{}| {:>17} {:>24} in {:>48}: ",
-#if defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
-                    std::bit_cast<u64>(std::this_thread::get_id()), level, c,
-#else
-                    std::bit_cast<u32>(std::this_thread::get_id()), level, c,
-#endif
+                    std::bit_cast<thread_id_t>(std::this_thread::get_id()), level, c,
                     function, fmt::format("{}:{}", file, line));
 
                 // Message
