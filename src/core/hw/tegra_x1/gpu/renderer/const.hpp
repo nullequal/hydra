@@ -272,7 +272,7 @@ struct TextureDescriptor {
         d.layer_size = layer_size;
 
         d.CalculateLevelCount();
-        if (layer_size == 0)
+        if (layer_size == 0 || layer_count == 1)
             d.CalculateLayerSize();
 
         return d;

@@ -619,8 +619,8 @@ SwizzleChannels::SwizzleChannels(const TextureFormat format,
 u32 TextureDescriptor::GetHash() const {
     HashCode hash;
     hash.Add(ptr);
-    hash.Add(is_linear);
-    hash.Add(linear_stride);
+    if (is_linear)
+        hash.Add(linear_stride);
     hash.Add(width);
     hash.Add(height);
     hash.Add(depth);
