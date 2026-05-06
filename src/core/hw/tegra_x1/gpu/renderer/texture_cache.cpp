@@ -279,11 +279,13 @@ void TextureCache::Update(ICommandBuffer* command_buffer,
         const auto base = storage.base;
         const auto& descriptor = base->GetDescriptor();
         const auto range = descriptor.GetRange();
-        for (auto& [key, sparse_tex] : mem.cache) {
-            // TODO: skip this sparse texture
+        for (auto& [key, group] : mem.cache) {
+            for (auto& [key, other_storage] : group.cache) {
+                // Skip this storage
+                if (&other_storage == &storage)
+                    continue;
 
-            for (auto& [key, other_group] : sparse_tex.cache) {
-                const auto other_base = other_group.base;
+                const auto other_base = other_storage.base;
                 const auto& other_descriptor = other_base->GetDescriptor();
                 const auto other_range = other_descriptor.GetRange();
 
