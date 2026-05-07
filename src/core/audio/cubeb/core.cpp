@@ -1,10 +1,17 @@
 #include "core/audio/cubeb/core.hpp"
 
+#ifdef PLATFORM_WINDOWS
+#include <combaseapi.h>
+#endif
+
 #include "core/audio/cubeb/stream.hpp"
 
 namespace hydra::audio::cubeb {
 
 Core::Core() {
+#ifdef PLATFORM_WINDOWS
+    CoInitializeEx(NULL, COINIT_MULTITHREADED);
+#endif
     const auto res = cubeb_init(&context, "Hydra", nullptr);
     ASSERT_THROWING(res == CUBEB_OK, Cubeb, Error::InitializationFailed,
                     "Failed to initialize cubeb context: {}", res);
