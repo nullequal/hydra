@@ -97,7 +97,7 @@ void UserManager::LoadSystemAvatars(filesystem::Filesystem& fs) {
 #ifdef PLATFORM_APPLE
         get_bundle_resource_path("default_avatar_image.png");
 #else
-        "default_avatar_image.png";
+        (std::filesystem::current_path() / "default_avatar_image.png").string();
 #endif
     avatars[DEFAULT_AVATAR_IMAGE_PATH] = {
         new filesystem::DiskFile(default_image_path)};
