@@ -60,12 +60,12 @@ class IController : public IDevice {
 
         const auto input = code.GetValue<ControllerInput>();
         if (ControllerInputIsStick(input))
-            return GetAxisValueImpl(input) > 0.5f;
+            return GetAxisValueImpl(input) > std::numeric_limits<i16>::max()/2;
         else
             return IsPressedImpl(input);
     }
 
-    f32 GetAxisValue(const Code& code) override {
+    i32 GetAxisValue(const Code& code) override {
         if (code.GetDeviceType() != DeviceType::Controller)
             return 0.0f;
 
@@ -78,7 +78,7 @@ class IController : public IDevice {
 
   protected:
     virtual bool IsPressedImpl(ControllerInput input) = 0;
-    virtual f32 GetAxisValueImpl(ControllerInput input) = 0;
+    virtual i32 GetAxisValueImpl(ControllerInput input) = 0;
 };
 
 } // namespace hydra::input

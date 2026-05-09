@@ -13,7 +13,7 @@ class IDevice {
 
     // Controller
     virtual bool IsPressed([[maybe_unused]] const Code& code) { return false; }
-    virtual f32 GetAxisValue([[maybe_unused]] const Code& code) { return 0.0f; }
+    virtual i32 GetAxisValue([[maybe_unused]] const Code& code) { return 0; }
 
     // Touch screen
     virtual u64 GetNextBeganTouchID() { return invalid<u64>(); };

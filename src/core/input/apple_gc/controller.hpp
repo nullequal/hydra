@@ -10,7 +10,7 @@ class Controller : public IController {
 
   protected:
     bool IsPressedImpl(ControllerInput input) override;
-    f32 GetAxisValueImpl(ControllerInput input) override;
+    i32 GetAxisValueImpl(ControllerInput input) override;
 
   private:
     id handle;

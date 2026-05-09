@@ -46,7 +46,16 @@ bool Controller::IsPressedImpl(ControllerInput input) {
         .isPressed;
 }
 
-f32 Controller::GetAxisValueImpl(ControllerInput input) {
+i32 analog_stick_to_int(f32 value) {
+    if (value < 0.0f)
+        return std::max(i16(value * (-std::numeric_limits<i16>::min())),
+                        std::numeric_limits<i16>::min());
+    else
+        return std::min(i16(value * std::numeric_limits<i16>::max()),
+                        std::numeric_limits<i16>::max());
+}
+
+i32 Controller::GetAxisValueImpl(ControllerInput input) {
 #define AXIS_CASE(input, gc_dpad, direction)                                   \
     case ControllerInput::input:                                               \
         gc_dpad_name = GCInput##gc_dpad;                                       \
@@ -66,7 +75,7 @@ f32 Controller::GetAxisValueImpl(ControllerInput input) {
         AXIS_CASE(StickRDown, RightThumbstick, Down)
     default:
         LOG_NOT_IMPLEMENTED(Input, "Controller axis {}", input);
-        return 0.0f;
+        return 0;
     }
 
 #undef AXIS_CASE
@@ -75,13 +84,13 @@ f32 Controller::GetAxisValueImpl(ControllerInput input) {
                     .physicalInputProfile.dpads[gc_dpad_name];
     switch (dir) {
     case AnalogStickDirection::Right:
-        return dpad.right.value;
+        return analog_stick_to_int(dpad.right.value);
     case AnalogStickDirection::Left:
-        return dpad.left.value;
+        return analog_stick_to_int(dpad.left.value);
     case AnalogStickDirection::Up:
-        return dpad.up.value;
+        return analog_stick_to_int(dpad.up.value);
     case AnalogStickDirection::Down:
-        return dpad.down.value;
+        return analog_stick_to_int(dpad.down.value);
     }
 }
 

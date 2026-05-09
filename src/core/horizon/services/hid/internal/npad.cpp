@@ -4,19 +4,6 @@
 
 namespace hydra::horizon::services::hid::internal {
 
-namespace {
-
-i32 analog_stick_to_int(f32 value) {
-    if (value < 0.0f)
-        return std::max(i16(value * (-std::numeric_limits<i16>::min())),
-                        std::numeric_limits<i16>::min());
-    else
-        return std::min(i16(value * std::numeric_limits<i16>::max()),
-                        std::numeric_limits<i16>::max());
-}
-
-} // namespace
-
 // TODO: should the event be signalled?
 Npad::Npad(NpadInternalState& state_)
     : state{state_}, style_set_update_event{
@@ -124,13 +111,13 @@ void Npad::Update(const input::NpadState& new_state) {
         .buttons = new_state.buttons,
         .analog_stick_l =
             {
-                .x = analog_stick_to_int(new_state.analog_l_x),
-                .y = analog_stick_to_int(new_state.analog_l_y),
+                .x = new_state.analog_l_x,
+                .y = new_state.analog_l_y,
             },
         .analog_stick_r =
             {
-                .x = analog_stick_to_int(new_state.analog_r_x),
-                .y = analog_stick_to_int(new_state.analog_r_y),
+                .x = new_state.analog_r_x,
+                .y = new_state.analog_r_y,
             },
         .attributes = NpadAttributes::IsConnected,
     };
