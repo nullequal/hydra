@@ -1150,6 +1150,183 @@ struct HydraTextureStorage: HandleStruct {
 }
 
 // Texture descriptor
+extension HydraTextureType {
+    var description: String {
+        switch self {
+        case HYDRA_TEXTURE_TYPE_1D:
+            return "1D"
+        case HYDRA_TEXTURE_TYPE_1D_ARRAY:
+            return "1D Array"
+        case HYDRA_TEXTURE_TYPE_1D_BUFFER:
+            return "1D Buffer"
+        case HYDRA_TEXTURE_TYPE_2D:
+            return "2D"
+        case HYDRA_TEXTURE_TYPE_2D_ARRAY:
+            return "2D Array"
+        case HYDRA_TEXTURE_TYPE_3D:
+            return "3D"
+        case HYDRA_TEXTURE_TYPE_CUBE:
+            return "Cube"
+        case HYDRA_TEXTURE_TYPE_CUBE_ARRAY:
+            return "Cube Array"
+        default:
+            return "Unknown \(self.rawValue)"
+        }
+    }
+}
+
+extension HydraTextureFormat {
+    var description: String {
+        switch self {
+        case HYDRA_TEXTURE_FORMAT_INVALID: return "Invalid"
+
+        case HYDRA_TEXTURE_FORMAT_R8_UNORM: return "R8 Unorm"
+        case HYDRA_TEXTURE_FORMAT_R8_SNORM: return "R8 Snorm"
+        case HYDRA_TEXTURE_FORMAT_R8_UINT: return "R8 UInt"
+        case HYDRA_TEXTURE_FORMAT_R8_SINT: return "R8 SInt"
+        case HYDRA_TEXTURE_FORMAT_R16_FLOAT: return "R16 Float"
+        case HYDRA_TEXTURE_FORMAT_R16_UNORM: return "R16 Unorm"
+        case HYDRA_TEXTURE_FORMAT_R16_SNORM: return "R16 Snorm"
+        case HYDRA_TEXTURE_FORMAT_R16_UINT: return "R16 UInt"
+        case HYDRA_TEXTURE_FORMAT_R16_SINT: return "R16 SInt"
+        case HYDRA_TEXTURE_FORMAT_R32_FLOAT: return "R32 Float"
+        case HYDRA_TEXTURE_FORMAT_R32_UINT: return "R32 UInt"
+        case HYDRA_TEXTURE_FORMAT_R32_SINT: return "R32 SInt"
+
+        case HYDRA_TEXTURE_FORMAT_RG8_UNORM: return "RG8 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RG8_SNORM: return "RG8 Snorm"
+        case HYDRA_TEXTURE_FORMAT_RG8_UINT: return "RG8 UInt"
+        case HYDRA_TEXTURE_FORMAT_RG8_SINT: return "RG8 SInt"
+        case HYDRA_TEXTURE_FORMAT_RG16_FLOAT: return "RG16 Float"
+        case HYDRA_TEXTURE_FORMAT_RG16_UNORM: return "RG16 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RG16_SNORM: return "RG16 Snorm"
+        case HYDRA_TEXTURE_FORMAT_RG16_UINT: return "RG16 UInt"
+        case HYDRA_TEXTURE_FORMAT_RG16_SINT: return "RG16 SInt"
+        case HYDRA_TEXTURE_FORMAT_RG32_FLOAT: return "RG32 Float"
+        case HYDRA_TEXTURE_FORMAT_RG32_UINT: return "RG32 UInt"
+        case HYDRA_TEXTURE_FORMAT_RG32_SINT: return "RG32 SInt"
+
+        case HYDRA_TEXTURE_FORMAT_RGB32_FLOAT: return "RGB32 Float"
+        case HYDRA_TEXTURE_FORMAT_RGB32_UINT: return "RGB32 UInt"
+        case HYDRA_TEXTURE_FORMAT_RGB32_SINT: return "RGB32 SInt"
+
+        case HYDRA_TEXTURE_FORMAT_RGBA8_UNORM: return "RGBA8 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RGBA8_SNORM: return "RGBA8 Snorm"
+        case HYDRA_TEXTURE_FORMAT_RGBA8_UINT: return "RGBA8 UInt"
+        case HYDRA_TEXTURE_FORMAT_RGBA8_SINT: return "RGBA8 SInt"
+        case HYDRA_TEXTURE_FORMAT_RGBA16_FLOAT: return "RGBA16 Float"
+        case HYDRA_TEXTURE_FORMAT_RGBA16_UNORM: return "RGBA16 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RGBA16_SNORM: return "RGBA16 Snorm"
+        case HYDRA_TEXTURE_FORMAT_RGBA16_UINT: return "RGBA16 UInt"
+        case HYDRA_TEXTURE_FORMAT_RGBA16_SINT: return "RGBA16 SInt"
+        case HYDRA_TEXTURE_FORMAT_RGBA32_FLOAT: return "RGBA32 Float"
+        case HYDRA_TEXTURE_FORMAT_RGBA32_UINT: return "RGBA32 UInt"
+        case HYDRA_TEXTURE_FORMAT_RGBA32_SINT: return "RGBA32 SInt"
+
+        case HYDRA_TEXTURE_FORMAT_S8_UINT: return "S8 UInt"
+        case HYDRA_TEXTURE_FORMAT_Z16_UNORM: return "Z16 Unorm"
+        case HYDRA_TEXTURE_FORMAT_Z24_UNORM_X8_UINT: return "Z24 Unorm X8 UInt"
+        case HYDRA_TEXTURE_FORMAT_Z32_FLOAT: return "Z32 Float"
+        case HYDRA_TEXTURE_FORMAT_Z24_UNORM_S8_UINT: return "Z24 Unorm S8 UInt"
+        case HYDRA_TEXTURE_FORMAT_Z32_FLOAT_X24_S8_UINT: return "Z32 Float X24 S8 UInt"
+
+        case HYDRA_TEXTURE_FORMAT_RGBX8_UNORM_SRGB: return "RGBX8 Unorm sRGB"
+        case HYDRA_TEXTURE_FORMAT_RGBA8_UNORM_SRGB: return "RGBA8 Unorm sRGB"
+        case HYDRA_TEXTURE_FORMAT_RGBA4_UNORM: return "RGBA4 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RGB5_UNORM: return "RGB5 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RGB5A1_UNORM: return "RGB5A1 Unorm"
+        case HYDRA_TEXTURE_FORMAT_R5G6B5_UNORM: return "R5G6B5 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RGB10A2_UNORM: return "RGB10A2 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RGB10A2_UINT: return "RGB10A2 UInt"
+        case HYDRA_TEXTURE_FORMAT_RG11B10_FLOAT: return "RG11B10 Float"
+        case HYDRA_TEXTURE_FORMAT_E5BGR9_FLOAT: return "E5BGR9 Float"
+
+        case HYDRA_TEXTURE_FORMAT_BC1_RGB: return "BC1 RGB"
+        case HYDRA_TEXTURE_FORMAT_BC1_RGBA: return "BC1 RGBA"
+        case HYDRA_TEXTURE_FORMAT_BC2_RGBA: return "BC2 RGBA"
+        case HYDRA_TEXTURE_FORMAT_BC3_RGBA: return "BC3 RGBA"
+        case HYDRA_TEXTURE_FORMAT_BC1_RGB_SRGB: return "BC1 RGB sRGB"
+        case HYDRA_TEXTURE_FORMAT_BC1_RGBA_SRGB: return "BC1 RGBA sRGB"
+        case HYDRA_TEXTURE_FORMAT_BC2_RGBA_SRGB: return "BC2 RGBA sRGB"
+        case HYDRA_TEXTURE_FORMAT_BC3_RGBA_SRGB: return "BC3 RGBA sRGB"
+        case HYDRA_TEXTURE_FORMAT_BC4_R_UNORM: return "BC4 R Unorm"
+        case HYDRA_TEXTURE_FORMAT_BC4_R_SNORM: return "BC4 R Snorm"
+        case HYDRA_TEXTURE_FORMAT_BC5_RG_UNORM: return "BC5 RG Unorm"
+        case HYDRA_TEXTURE_FORMAT_BC5_RG_SNORM: return "BC5 RG Snorm"
+        case HYDRA_TEXTURE_FORMAT_BC7_RGBA_UNORM: return "BC7 RGBA Unorm"
+        case HYDRA_TEXTURE_FORMAT_BC7_RGBA_UNORM_SRGB: return "BC7 RGBA Unorm sRGB"
+        case HYDRA_TEXTURE_FORMAT_BC6H_RGBA_SF16_FLOAT: return "BC6H SF16 Float"
+        case HYDRA_TEXTURE_FORMAT_BC6H_RGBA_UF16_FLOAT: return "BC6H UF16 Float"
+
+        case HYDRA_TEXTURE_FORMAT_RGBX8_UNORM: return "RGBX8 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RGBX8_SNORM: return "RGBX8 Snorm"
+        case HYDRA_TEXTURE_FORMAT_RGBX8_UINT: return "RGBX8 UInt"
+        case HYDRA_TEXTURE_FORMAT_RGBX8_SINT: return "RGBX8 SInt"
+        case HYDRA_TEXTURE_FORMAT_RGBX16_FLOAT: return "RGBX16 Float"
+        case HYDRA_TEXTURE_FORMAT_RGBX16_UNORM: return "RGBX16 Unorm"
+        case HYDRA_TEXTURE_FORMAT_RGBX16_SNORM: return "RGBX16 Snorm"
+        case HYDRA_TEXTURE_FORMAT_RGBX16_UINT: return "RGBX16 UInt"
+        case HYDRA_TEXTURE_FORMAT_RGBX16_SINT: return "RGBX16 SInt"
+        case HYDRA_TEXTURE_FORMAT_RGBX32_FLOAT: return "RGBX32 Float"
+        case HYDRA_TEXTURE_FORMAT_RGBX32_UINT: return "RGBX32 UInt"
+        case HYDRA_TEXTURE_FORMAT_RGBX32_SINT: return "RGBX32 SInt"
+
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_4X4: return "ASTC 4x4"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_5X4: return "ASTC 5x4"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_5X5: return "ASTC 5x5"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_6X5: return "ASTC 6x5"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_6X6: return "ASTC 6x6"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_8X5: return "ASTC 8x5"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_8X6: return "ASTC 8x6"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_8X8: return "ASTC 8x8"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_10X5: return "ASTC 10x5"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_10X6: return "ASTC 10x6"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_10X8: return "ASTC 10x8"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_10X10: return "ASTC 10x10"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_12X10: return "ASTC 12x10"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_12X12: return "ASTC 12x12"
+
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_4X4_SRGB: return "ASTC 4x4 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_5X4_SRGB: return "ASTC 5x4 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_5X5_SRGB: return "ASTC 5x5 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_6X5_SRGB: return "ASTC 6x5 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_6X6_SRGB: return "ASTC 6x6 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_8X5_SRGB: return "ASTC 8x5 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_8X6_SRGB: return "ASTC 8x6 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_8X8_SRGB: return "ASTC 8x8 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_10X5_SRGB: return "ASTC 10x5 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_10X6_SRGB: return "ASTC 10x6 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_10X8_SRGB: return "ASTC 10x8 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_10X10_SRGB: return "ASTC 10x10 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_12X10_SRGB: return "ASTC 12x10 sRGB"
+        case HYDRA_TEXTURE_FORMAT_ASTC_RGBA_12X12_SRGB: return "ASTC 12x12 sRGB"
+
+        case HYDRA_TEXTURE_FORMAT_B5G6R5_UNORM: return "B5G6R5 Unorm"
+        case HYDRA_TEXTURE_FORMAT_BGR5_UNORM: return "BGR5 Unorm"
+        case HYDRA_TEXTURE_FORMAT_BGR5A1_UNORM: return "BGR5A1 Unorm"
+        case HYDRA_TEXTURE_FORMAT_A1BGR5_UNORM: return "A1BGR5 Unorm"
+        case HYDRA_TEXTURE_FORMAT_BGRX8_UNORM: return "BGRX8 Unorm"
+        case HYDRA_TEXTURE_FORMAT_BGRA8_UNORM: return "BGRA8 Unorm"
+        case HYDRA_TEXTURE_FORMAT_BGRX8_UNORM_SRGB: return "BGRX8 Unorm sRGB"
+        case HYDRA_TEXTURE_FORMAT_BGRA8_UNORM_SRGB: return "BGRA8 Unorm sRGB"
+
+        case HYDRA_TEXTURE_FORMAT_ETC2_R_UNORM: return "ETC2 R Unorm"
+        case HYDRA_TEXTURE_FORMAT_ETC2_R_SNORM: return "ETC2 R Snorm"
+        case HYDRA_TEXTURE_FORMAT_ETC2_RG_UNORM: return "ETC2 RG Unorm"
+        case HYDRA_TEXTURE_FORMAT_ETC2_RG_SNORM: return "ETC2 RG Snorm"
+        case HYDRA_TEXTURE_FORMAT_ETC2_RGB: return "ETC2 RGB"
+        case HYDRA_TEXTURE_FORMAT_PTA_ETC2_RGB: return "PTA ETC2 RGB"
+        case HYDRA_TEXTURE_FORMAT_ETC2_RGBA: return "ETC2 RGBA"
+        case HYDRA_TEXTURE_FORMAT_ETC2_RGB_SRGB: return "ETC2 RGB sRGB"
+        case HYDRA_TEXTURE_FORMAT_PTA_ETC2_RGB_SRGB: return "PTA ETC2 RGB sRGB"
+        case HYDRA_TEXTURE_FORMAT_ETC2_RGBA_SRGB: return "ETC2 RGBA sRGB"
+
+        default:
+            return "Unknown (\(self.rawValue))"
+        }
+    }
+}
+
 struct HydraTextureDescriptor: HandleStruct {
     internal let handle: UnsafeRawPointer
 
@@ -1175,6 +1352,14 @@ struct HydraTextureDescriptor: HandleStruct {
 
     var depth: UInt32 {
         hydra_texture_descriptor_get_depth(self.handle)
+    }
+
+    var levelCount: UInt32 {
+        hydra_texture_descriptor_get_level_count(self.handle)
+    }
+
+    var layerCount: UInt32 {
+        hydra_texture_descriptor_get_layer_count(self.handle)
     }
 
     var layerSize: UInt64 {

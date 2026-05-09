@@ -1106,6 +1106,22 @@ hydra_texture_descriptor_get_depth(const void* descriptor) {
         ->depth;
 }
 
+HYDRA_EXPORT uint32_t
+hydra_texture_descriptor_get_level_count(const void* descriptor) {
+    return static_cast<
+               const hydra::hw::tegra_x1::gpu::renderer::TextureDescriptor*>(
+               descriptor)
+        ->level_count;
+}
+
+HYDRA_EXPORT uint32_t
+hydra_texture_descriptor_get_layer_count(const void* descriptor) {
+    return static_cast<
+               const hydra::hw::tegra_x1::gpu::renderer::TextureDescriptor*>(
+               descriptor)
+        ->layer_count;
+}
+
 HYDRA_EXPORT uint64_t
 hydra_texture_descriptor_get_layer_size(const void* descriptor) {
     return static_cast<

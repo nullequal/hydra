@@ -568,6 +568,8 @@ HydraTextureFormat hydra_texture_descriptor_get_format(const void* descriptor);
 uint32_t hydra_texture_descriptor_get_width(const void* descriptor);
 uint32_t hydra_texture_descriptor_get_height(const void* descriptor);
 uint32_t hydra_texture_descriptor_get_depth(const void* descriptor);
+uint32_t hydra_texture_descriptor_get_level_count(const void* descriptor);
+uint32_t hydra_texture_descriptor_get_layer_count(const void* descriptor);
 uint64_t hydra_texture_descriptor_get_layer_size(const void* descriptor);
 uint64_t hydra_texture_descriptor_get_size(const void* descriptor);
 

@@ -7,12 +7,31 @@ struct TextureListView: View {
 
     var body: some View {
         ZStack {
-            List {
-                ForEach(Array(self.textures.enumerated()), id: \.offset) { index, storage in
-                    TextureView(storage: storage)
-                        .id("\(refreshID)-\(index)")  // Unique ID per refresh
+            // TODO: support sorting
+            Table(self.textures) {
+                TableColumn("Dimensions") { texture in
+                    Text("\(texture.descriptor.width)x\(texture.descriptor.height)\(texture.descriptor.depth == 1 ? "" : "x\(texture.descriptor.depth)")")
+                }
+                TableColumn("Type") { texture in
+                    Text(texture.descriptor.type.description)
+                }
+                TableColumn("Format") { texture in
+                    Text(texture.descriptor.format.description)
+                }
+                TableColumn("Levels") { texture in
+                    Text("\(texture.descriptor.levelCount)")
+                }
+                TableColumn("Layers") { texture in
+                    Text("\(texture.descriptor.layerCount)")
+                }
+                TableColumn("Layer Size") { texture in
+                    Text("\(texture.descriptor.layerSize)")
+                }
+                TableColumn("Total Size") { texture in
+                    Text("\(texture.descriptor.size)")
                 }
             }
+                .id("\(refreshID)")  // Unique ID per refresh
 
             // TODO: add an option to refresh at regular intervals or any time a change happens?
             HStack {
