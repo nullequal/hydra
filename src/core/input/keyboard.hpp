@@ -71,12 +71,12 @@ class IKeyboard : public IDevice {
         return IsPressedImpl(key);
     }
 
-    f32 GetAxisValue(const Code& code) override {
+    i32 GetAxisValue(const Code& code) override {
         if (code.GetDeviceType() != DeviceType::Keyboard)
-            return 0.0f;
+            return 0;
 
         const auto key = code.GetValue<Key>();
-        return IsPressedImpl(key) ? 1.0f : 0.0f;
+        return IsPressedImpl(key) ? std::numeric_limits<i16>::max() : 0;
     }
 
   protected:
