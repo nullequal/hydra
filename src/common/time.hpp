@@ -24,11 +24,11 @@ inline u64 GetSystemTick() {
 
 inline u64 GetSystemFrequency() {
     auto nsc_start = std::chrono::steady_clock::now().time_since_epoch();
-    u64 tsc_start = get_timestamp();
+    u64 tsc_start = GetSystemTick();
     // More sleep, more precision.
     std::this_thread::sleep_for(10ms);
     auto nsc_end = std::chrono::steady_clock::now().time_since_epoch();
-    u64 tsc_end = get_timestamp();
+    u64 tsc_end = GetSystemTick();
     u64 ns_diff =
         static_cast<u64>(std::chrono::duration_cast<std::chrono::nanoseconds>(
                              nsc_end - nsc_start)
