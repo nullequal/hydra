@@ -219,7 +219,7 @@ void UserManager::Serialize(uuid_t user_id) {
     }
     ofs.close();
 
-    user_pair.second = get_absolute_time();
+    user_pair.second = GetTimestamp();
 }
 
 void UserManager::Deserialize(uuid_t user_id) {

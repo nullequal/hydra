@@ -136,6 +136,9 @@ void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
     // Check for firmware applets
     auto controller = new horizon::services::am::LibraryAppletController(
         horizon::LibraryAppletMode::AllForeground);
+    // TODO: correct?
+    u64 system_tick;
+    os->GetKernel().GetSystemTick(system_tick);
     switch (loader->GetTitleID()) {
     case 0x0100000000001003: { // controller
         // Common args
@@ -145,7 +148,7 @@ void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
             .library_applet_api_version = 1, // TODO: correct?
             .theme_color = 0,                // HACK
             .play_startup_sound = false,     // HACK
-            .system_tick = get_absolute_time(),
+            .system_tick = system_tick,
         };
         controller->PushInData(
             new horizon::services::am::IStorage(common_args));
@@ -191,7 +194,7 @@ void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
             .library_applet_api_version = 1, // TODO: correct?
             .theme_color = 0,                // HACK
             .play_startup_sound = false,     // HACK
-            .system_tick = get_absolute_time(),
+            .system_tick = system_tick,
         };
         controller->PushInData(
             new horizon::services::am::IStorage(common_args));
@@ -226,7 +229,7 @@ void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
             .library_applet_api_version = 1, // TODO: correct?
             .theme_color = 0,                // HACK
             .play_startup_sound = false,     // HACK
-            .system_tick = get_absolute_time(),
+            .system_tick = system_tick,
         };
         controller->PushInData(
             new horizon::services::am::IStorage(common_args));
@@ -259,7 +262,7 @@ void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
             .library_applet_api_version = 1, // TODO: correct?
             .theme_color = 0,                // HACK
             .play_startup_sound = false,     // HACK
-            .system_tick = get_absolute_time(),
+            .system_tick = system_tick,
         };
         controller->PushInData(
             new horizon::services::am::IStorage(common_args));
