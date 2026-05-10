@@ -67,7 +67,7 @@ class IController : public IDevice {
 
     i32 GetAxisValue(const Code& code) override {
         if (code.GetDeviceType() != DeviceType::Controller)
-            return 0.0f;
+            return 0;
 
         const auto input = code.GetValue<ControllerInput>();
         if (ControllerInputIsStick(input))
