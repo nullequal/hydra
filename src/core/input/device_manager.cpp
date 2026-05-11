@@ -48,31 +48,31 @@ DeviceManager::PollNpad(horizon::services::hid::internal::NpadIndex index) {
             if (mapping.axis.is_left) {
                 switch (mapping.axis.direction) {
                 case AnalogStickDirection::Right:
-                    state.analog_l_x += value;
+                    state.analog_l.x() += value;
                     break;
                 case AnalogStickDirection::Left:
-                    state.analog_l_x -= value;
+                    state.analog_l.x() -= value;
                     break;
                 case AnalogStickDirection::Up:
-                    state.analog_l_y += value;
+                    state.analog_l.y() += value;
                     break;
                 case AnalogStickDirection::Down:
-                    state.analog_l_y -= value;
+                    state.analog_l.y() -= value;
                     break;
                 }
             } else {
                 switch (mapping.axis.direction) {
                 case AnalogStickDirection::Right:
-                    state.analog_r_x += value;
+                    state.analog_r.x() += value;
                     break;
                 case AnalogStickDirection::Left:
-                    state.analog_r_x -= value;
+                    state.analog_r.x() -= value;
                     break;
                 case AnalogStickDirection::Up:
-                    state.analog_r_y += value;
+                    state.analog_r.y() += value;
                     break;
                 case AnalogStickDirection::Down:
-                    state.analog_r_y -= value;
+                    state.analog_r.y() -= value;
                     break;
                 }
             }

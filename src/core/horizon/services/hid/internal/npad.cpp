@@ -6,13 +6,30 @@ namespace hydra::horizon::services::hid::internal {
 
 namespace {
 
-i32 analog_stick_to_int(f32 value) {
+i32 NormalizedFloatToInt(f32 value) {
     if (value < 0.0f)
-        return std::max(i16(value * (-std::numeric_limits<i16>::min())),
-                        std::numeric_limits<i16>::min());
+        return std::max(
+            static_cast<i16>(-value * std::numeric_limits<i16>::min()),
+            std::numeric_limits<i16>::min());
     else
-        return std::min(i16(value * std::numeric_limits<i16>::max()),
-                        std::numeric_limits<i16>::max());
+        return std::min(
+            static_cast<i16>(value * std::numeric_limits<i16>::max()),
+            std::numeric_limits<i16>::max());
+}
+
+// TODO: deadzone
+int2 AnalogStickToInt(float2 value) {
+    const auto length2 = value.x() * value.x() + value.y() * value.y();
+
+    // Normalize if length is greater than 1
+    if (length2 > 1.0f) {
+        const auto length = std::sqrt(length2);
+        value.x() /= length;
+        value.y() /= length;
+    }
+
+    return int2(
+        {NormalizedFloatToInt(value.x()), NormalizedFloatToInt(value.y())});
 }
 
 } // namespace
@@ -120,17 +137,19 @@ void Npad::Update(const input::NpadState& new_state) {
         return;
 
     // State
+    const auto analog_l = AnalogStickToInt(new_state.analog_l);
+    const auto analog_r = AnalogStickToInt(new_state.analog_r);
     NpadCommonState new_state_entry{
         .buttons = new_state.buttons,
         .analog_stick_l =
             {
-                .x = analog_stick_to_int(new_state.analog_l_x),
-                .y = analog_stick_to_int(new_state.analog_l_y),
+                .x = analog_l.x(),
+                .y = analog_l.y(),
             },
         .analog_stick_r =
             {
-                .x = analog_stick_to_int(new_state.analog_r_x),
-                .y = analog_stick_to_int(new_state.analog_r_y),
+                .x = analog_r.x(),
+                .y = analog_r.y(),
             },
         .attributes = NpadAttributes::IsConnected,
     };

@@ -7,10 +7,8 @@ namespace hydra::input {
 struct NpadState {
     horizon::services::hid::NpadButtons buttons{
         horizon::services::hid::NpadButtons::None};
-    f32 analog_l_x{0.0f};
-    f32 analog_l_y{0.0f};
-    f32 analog_r_x{0.0f};
-    f32 analog_r_y{0.0f};
+    float2 analog_l;
+    float2 analog_r;
 };
 
 struct TouchState {
