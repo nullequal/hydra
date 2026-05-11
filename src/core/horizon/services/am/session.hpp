@@ -18,7 +18,7 @@ class ISession : public IService {
                          u32 id) override;
 
   private:
-    u32 performance_configs[(u32)PerformanceMode::Count] = {
+    u32 performance_configs[static_cast<u32>(PerformanceMode::Count)] = {
         0x20004, 0x92220007}; // TODO: what should this be?
 
     // Commands

@@ -16,7 +16,8 @@ constexpr u32 CONTINUOUS_ADJUSTMENT_TIME_POINT_OFFSET = 0xd0;
 
 TimeManager::TimeManager()
     : shared_memory{new kernel::SharedMemory(SHARED_MEMORY_SIZE)} {
-    std::memset((void*)shared_memory->GetPtr(), 0, SHARED_MEMORY_SIZE);
+    std::memset(reinterpret_cast<void*>(shared_memory->GetPtr()), 0,
+                SHARED_MEMORY_SIZE);
 
     (void)STEADY_CLOCK_CONTEXT_OFFSET;
     (void)LOCAL_SYSTEM_CLOCK_CONTEXT_OFFSET;

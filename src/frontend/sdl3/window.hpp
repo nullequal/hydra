@@ -10,10 +10,10 @@ using Native = hydra::frontend::native::cocoa::Native;
 
 namespace hydra::frontend::sdl3 {
 
-class Window : public horizon::ui::HandlerBase {
+class Window : public horizon::ui::IHandler {
   public:
     Window(int argc, const char* argv[]);
-    ~Window();
+    ~Window() override;
 
     void Run();
 

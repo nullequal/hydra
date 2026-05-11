@@ -136,12 +136,12 @@ class Debugger {
         : name{name_}, process{process_} {}
     ~Debugger();
 
-    void RegisterExecutable(const std::string_view name,
+    void RegisterExecutable(const std::string_view exe_name,
                             horizon::filesystem::IFile* executable) {
-        executables.emplace(name, executable);
+        executables.emplace(exe_name, executable);
     }
 
-    void RegisterThisThread(const std::string_view name);
+    void RegisterThisThread(const std::string_view thread_name);
     void UnregisterThisThread();
     void RegisterGuestThreadForThisThread(
         horizon::kernel::GuestThread* guest_thread);

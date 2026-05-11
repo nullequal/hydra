@@ -36,7 +36,7 @@ class ParcelReader {
 
         // Align
         usize size = count * sizeof(T);
-        stream->SeekBy(align(size, (usize)4) - size);
+        stream->SeekBy(align(size, static_cast<usize>(4)) - size);
 
         return span;
     }
@@ -135,7 +135,7 @@ class ParcelWriter {
 
         // Align
         usize size = count * sizeof(T);
-        stream->SeekBy(align(size, (usize)4) - size);
+        stream->SeekBy(align(size, static_cast<usize>(4)) - size);
 
         return span;
     }

@@ -146,8 +146,8 @@ class IThread : public SynchronizationObject {
     bool ProcessMessagesImpl();
 
     // Mutex
-    void AddMutexWaiter(IThread* thread);
-    void RemoveMutexWaiter(IThread* thread);
+    void AddMutexWaiter(IThread* waiter);
+    void RemoveMutexWaiter(IThread* waiter);
     IThread* RelinquishMutex(uptr mutex_addr, u32& out_waiter_count);
 
   public:

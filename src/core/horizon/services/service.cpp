@@ -16,7 +16,7 @@ IService::~IService() {
 
 void IService::HandleRequest(kernel::Process* caller_process, uptr ptr) {
     // HIPC header
-    auto hipc_in = kernel::hipc::parse_request((void*)ptr);
+    auto hipc_in = kernel::hipc::parse_request(reinterpret_cast<void*>(ptr));
     auto command_type =
         static_cast<kernel::hipc::cmif::CommandType>(hipc_in.meta.type);
     const bool is_tipc =
@@ -68,8 +68,9 @@ void IService::HandleRequest(kernel::Process* caller_process, uptr ptr) {
         if (command_type >=
             kernel::hipc::cmif::CommandType::TipcCommandRegion) {
             const auto command_id =
-                (u32)command_type -
-                (u32)kernel::hipc::cmif::CommandType::TipcCommandRegion;
+                static_cast<u32>(command_type) -
+                static_cast<u32>(
+                    kernel::hipc::cmif::CommandType::TipcCommandRegion);
             TipcRequest(context, command_id);
             response_command_type = command_type; // Same as input
             break;
@@ -83,7 +84,8 @@ void IService::HandleRequest(kernel::Process* caller_process, uptr ptr) {
     if (should_respond) {
         // HIPC header
 #define GET_ARRAY_SIZE(stream)                                                 \
-    static_cast<u32>(align(streams.stream.GetSeek(), (usize)4) / sizeof(u32))
+    static_cast<u32>(align(streams.stream.GetSeek(), static_cast<usize>(4)) /  \
+                     sizeof(u32))
 
 #define WRITE_ARRAY(stream, ptr)                                               \
     if (ptr) {                                                                 \
@@ -91,12 +93,13 @@ void IService::HandleRequest(kernel::Process* caller_process, uptr ptr) {
     }
 
         kernel::hipc::Metadata meta{
-            .type = (u32)response_command_type,
+            .type = static_cast<u32>(response_command_type),
             .num_data_words =
                 GET_ARRAY_SIZE(out_stream) + GET_ARRAY_SIZE(out_objects_stream),
             .num_copy_handles = GET_ARRAY_SIZE(out_copy_handles_stream),
             .num_move_handles = GET_ARRAY_SIZE(out_move_handles_stream)};
-        auto response = kernel::hipc::make_request((void*)ptr, meta);
+        auto response =
+            kernel::hipc::make_request(reinterpret_cast<void*>(ptr), meta);
         if (!is_tipc)
             response.data_words =
                 kernel::hipc::cmif::align_data_start(response.data_words);

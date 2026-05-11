@@ -32,23 +32,23 @@ DEFINE_SERVICE_COMMAND_TABLE(IPcvService, 2, SetClockRate, 3, GetClockRate)
 
 result_t IPcvService::SetClockRate(ModuleId module_id, u32 rate) {
     if (module_id >= ModuleId::Count) {
-        LOG_ERROR(Services, "Invalid module ID {}", (u32)module_id);
+        LOG_ERROR(Services, "Invalid module ID {}", module_id);
         return MAKE_RESULT(Svc,
                            kernel::Error::InvalidEnumValue); // TODO: module
     }
 
-    clock_rates[(u32)module_id] = rate;
+    clock_rates[static_cast<u32>(module_id)] = rate;
     return RESULT_SUCCESS;
 }
 
 result_t IPcvService::GetClockRate(ModuleId module_id, u32* out_rate) {
     if (module_id >= ModuleId::Count) {
-        LOG_ERROR(Services, "Invalid module ID {}", (u32)module_id);
+        LOG_ERROR(Services, "Invalid module ID {}", module_id);
         return MAKE_RESULT(Svc,
                            kernel::Error::InvalidEnumValue); // TODO: module
     }
 
-    *out_rate = clock_rates[(u32)module_id];
+    *out_rate = clock_rates[static_cast<u32>(module_id)];
     return RESULT_SUCCESS;
 }
 

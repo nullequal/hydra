@@ -24,8 +24,8 @@ void GuestThread::Run() {
     ASSERT(entry_point != invalid<vaddr_t>(), Kernel, "Invalid entry point");
     thread = CPU_INSTANCE.CreateThread(
         process->GetMmu(),
-        {[this](hw::tegra_x1::cpu::IThread* thread, u64 id) {
-             KERNEL_INSTANCE.SupervisorCall(process, this, thread, id);
+        {[this](hw::tegra_x1::cpu::IThread* hw_thread, u64 id) {
+             KERNEL_INSTANCE.SupervisorCall(process, this, hw_thread, id);
          },
          [this]() {
              ProcessMessages();

@@ -18,7 +18,9 @@ struct SharedFontName {
 };
 
 #define SHARED_FONT_ENTRY(type, name, filename)                                \
-    [(u32)SharedFontType::type] = SharedFontName { name, filename ".bfttf" }
+    [static_cast<u32>(SharedFontType::type)] = SharedFontName {                \
+        name, filename ".bfttf"                                                \
+    }
 
 constexpr SharedFontName shared_font_names[] = {
     SHARED_FONT_ENTRY(JapanUsEurope, "FontStandard", "nintendo_udsg-r_std_003"),
@@ -36,7 +38,7 @@ constexpr SharedFontName shared_font_names[] = {
 #undef SHARED_FONT_ENTRY
 
 filesystem::IFile* GetSharedFontFile(SharedFontType font_type) {
-    const auto& name = shared_font_names[(u32)font_type];
+    const auto& name = shared_font_names[static_cast<u32>(font_type)];
 
     // NCA
     filesystem::IFile* file;

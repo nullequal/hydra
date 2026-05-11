@@ -1,11 +1,9 @@
 #pragma once
 
-#include <assert.h>
+#include <cassert>
 #include <charconv>
 #include <cxxabi.h>
 #include <fstream>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string>
 #include <sys/mman.h>
 

@@ -8,8 +8,8 @@ class IMmu;
 
 namespace hydra::horizon::kernel::hipc {
 
-#define HIPC_AUTO_RECV_STATIC UINT8_MAX
-#define HIPC_RESPONSE_NO_PID UINT32_MAX
+#define HIPC_AUTO_RECV_STATIC std::numeric_limits<u8>::max()
+#define HIPC_RESPONSE_NO_PID std::numeric_limits<u32>::max()
 
 // From https://github.com/switchbrew/libnx
 struct Metadata {
@@ -108,58 +108,58 @@ inline Request calc_request_layout(Metadata meta, void* base) {
     // Copy handles
     handle_id_t* copy_handles = NULL;
     if (meta.num_copy_handles) {
-        copy_handles = (handle_id_t*)base;
+        copy_handles = reinterpret_cast<handle_id_t*>(base);
         base = copy_handles + meta.num_copy_handles;
     }
 
     // Move handles
     handle_id_t* move_handles = NULL;
     if (meta.num_move_handles) {
-        move_handles = (handle_id_t*)base;
+        move_handles = reinterpret_cast<handle_id_t*>(base);
         base = move_handles + meta.num_move_handles;
     }
 
     // Send statics
     StaticDescriptor* send_statics = NULL;
     if (meta.num_send_statics) {
-        send_statics = (StaticDescriptor*)base;
+        send_statics = reinterpret_cast<StaticDescriptor*>(base);
         base = send_statics + meta.num_send_statics;
     }
 
     // Send buffers
     BufferDescriptor* send_buffers = NULL;
     if (meta.num_send_buffers) {
-        send_buffers = (BufferDescriptor*)base;
+        send_buffers = reinterpret_cast<BufferDescriptor*>(base);
         base = send_buffers + meta.num_send_buffers;
     }
 
     // Recv buffers
     BufferDescriptor* recv_buffers = NULL;
     if (meta.num_recv_buffers) {
-        recv_buffers = (BufferDescriptor*)base;
+        recv_buffers = reinterpret_cast<BufferDescriptor*>(base);
         base = recv_buffers + meta.num_recv_buffers;
     }
 
     // Exch buffers
     BufferDescriptor* exch_buffers = NULL;
     if (meta.num_exch_buffers) {
-        exch_buffers = (BufferDescriptor*)base;
+        exch_buffers = reinterpret_cast<BufferDescriptor*>(base);
         base = exch_buffers + meta.num_exch_buffers;
     }
 
     // Data words
     u32* data_words = NULL;
     if (meta.num_data_words) {
-        data_words = (u32*)base;
+        data_words = reinterpret_cast<u32*>(base);
         base = data_words + meta.num_data_words;
     }
 
     // Recv list
     RecvListEntry* recv_list = NULL;
     if (meta.num_recv_statics)
-        recv_list = (RecvListEntry*)base;
+        recv_list = reinterpret_cast<RecvListEntry*>(base);
 
-    return (Request){
+    return Request{
         .send_statics = send_statics,
         .send_buffers = send_buffers,
         .recv_buffers = recv_buffers,
@@ -175,7 +175,7 @@ inline ParsedRequest parse_request(void* base) {
     // Parse message header
     Header hdr = {};
     memcpy(&hdr, base, sizeof(hdr));
-    base = (u8*)base + sizeof(hdr);
+    base = reinterpret_cast<u8*>(base) + sizeof(hdr);
     u32 num_recv_statics = 0;
     u64 pid = 0;
 
@@ -191,12 +191,12 @@ inline ParsedRequest parse_request(void* base) {
     SpecialHeader sphdr = {};
     if (hdr.has_special_header) {
         memcpy(&sphdr, base, sizeof(sphdr));
-        base = (u8*)base + sizeof(sphdr);
+        base = reinterpret_cast<u8*>(base) + sizeof(sphdr);
 
         // Read PID descriptor
         if (sphdr.send_pid) {
-            pid = *(u64*)base;
-            base = (u8*)base + sizeof(u64);
+            pid = *reinterpret_cast<u64*>(base);
+            base = reinterpret_cast<u8*>(base) + sizeof(u64);
         }
     }
 
@@ -224,9 +224,9 @@ inline Request make_request(void* base, Metadata meta) {
     // Write message header
     bool has_special_header =
         meta.send_pid || meta.num_copy_handles || meta.num_move_handles;
-    Header* hdr = (Header*)base;
+    Header* hdr = reinterpret_cast<Header*>(base);
     base = hdr + 1;
-    *hdr = (Header){
+    *hdr = Header{
         .type = meta.type,
         .num_send_statics = meta.num_send_statics,
         .num_send_buffers = meta.num_send_buffers,
@@ -246,15 +246,15 @@ inline Request make_request(void* base, Metadata meta) {
 
     // Write special header
     if (has_special_header) {
-        SpecialHeader* sphdr = (SpecialHeader*)base;
+        SpecialHeader* sphdr = reinterpret_cast<SpecialHeader*>(base);
         base = sphdr + 1;
-        *sphdr = (SpecialHeader){
+        *sphdr = SpecialHeader{
             .send_pid = meta.send_pid,
             .num_copy_handles = meta.num_copy_handles,
             .num_move_handles = meta.num_move_handles,
         };
         if (meta.send_pid)
-            base = (u8*)base + sizeof(u64);
+            base = reinterpret_cast<u8*>(base) + sizeof(u64);
     }
 
     // Calculate layout
@@ -262,20 +262,20 @@ inline Request make_request(void* base, Metadata meta) {
 }
 
 u8* get_buffer_ptr(const hw::tegra_x1::cpu::IMmu* mmu,
-                   const BufferDescriptor& descriptor, usize& size);
+                   const BufferDescriptor& descriptor, u64& size);
 
 u8* get_static_ptr(const hw::tegra_x1::cpu::IMmu* mmu,
-                   const StaticDescriptor& descriptor, usize& size);
+                   const StaticDescriptor& descriptor, u64& size);
 
 u8* get_list_entry_ptr(const hw::tegra_x1::cpu::IMmu* mmu,
-                       const RecvListEntry& descriptor, usize& size);
+                       const RecvListEntry& descriptor, u64& size);
 
 #define CREATE_STREAMS(buffer_or_static, type)                                 \
     type##_##buffer_or_static##s_streams.reserve(                              \
         hipc_in.meta.num_##type##_##buffer_or_static##s);                      \
     for (u32 i = 0; i < hipc_in.meta.num_##type##_##buffer_or_static##s;       \
          i++) {                                                                \
-        usize size;                                                            \
+        u64 size;                                                              \
         u8* ptr = get_##buffer_or_static##_ptr(                                \
             mmu, hipc_in.data.type##_##buffer_or_static##s[i], size);          \
         type##_##buffer_or_static##s_streams.push_back(                        \
@@ -322,7 +322,7 @@ struct Streams {
         CREATE_BUFFER_STREAMS(send);
         recv_list_streams.reserve(hipc_in.meta.num_recv_statics);
         for (u32 i = 0; i < hipc_in.meta.num_recv_statics; i++) {
-            usize size;
+            u64 size;
             u8* ptr = get_list_entry_ptr(mmu, hipc_in.data.recv_list[i], size);
             // TODO: should we continue or push std::nullopt in case of nullptr?
             recv_list_streams.push_back(

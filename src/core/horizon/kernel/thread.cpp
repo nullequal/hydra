@@ -109,14 +109,14 @@ bool IThread::ProcessMessagesImpl() {
     return true;
 }
 
-void IThread::AddMutexWaiter(IThread* thread) {
+void IThread::AddMutexWaiter(IThread* waiter) {
     std::lock_guard<std::mutex> lock(mutex_wait_mutex);
-    mutex_wait_list.AddLast(thread);
+    mutex_wait_list.AddLast(waiter);
 }
 
-void IThread::RemoveMutexWaiter(IThread* thread) {
+void IThread::RemoveMutexWaiter(IThread* waiter) {
     std::lock_guard<std::mutex> lock(mutex_wait_mutex);
-    mutex_wait_list.Remove(thread);
+    mutex_wait_list.Remove(waiter);
 }
 
 IThread* IThread::RelinquishMutex(uptr mutex_addr, u32& out_waiter_count) {

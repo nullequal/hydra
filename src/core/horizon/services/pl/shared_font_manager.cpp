@@ -51,8 +51,8 @@ result_t ISharedFontManager::GetSharedFontInOrderOfPriority(
 
     // TODO: sort by priority
     (void)language_code;
-    for (SharedFontType type = (SharedFontType)0; type < SharedFontType::Total;
-         type++) {
+    for (SharedFontType type = SharedFontType::JapanUsEurope;
+         type < SharedFontType::Total; type++) {
         const auto& state = SHARED_FONT_MANAGER_INSTANCE.GetState(type);
         out_types_buffer.stream->Write(type);
         out_offsets_buffer.stream->Write<u32>(state.shared_memory_offset);

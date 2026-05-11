@@ -26,7 +26,7 @@ void Convert(u32 stride, u32 rows, u32 block_height_log2, u8* block_linear,
                 const u32 x = block_x * 64;
                 const u32 y = block_y * block_height_px + gob_y * 8;
                 if (y < rows) {
-                    u8* decoded_gob = (u8*)linear + y * stride + x;
+                    u8* decoded_gob = linear + y * stride + x;
                     // Reverse the 16Bx2 swizzling for each GOB
                     for (u32 i = 0; i < BLOCK_SIZE; i++) {
                         const u32 local_y = ((i >> 1) & 0x06) | (i & 0x01);

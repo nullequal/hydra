@@ -26,7 +26,7 @@ RomFS::RomFS(IFile* file) {
 
     // Get root
     IEntry* root;
-    const auto res = root_container->GetEntry(EMPTY_PLACEHOLDER_NAME, root);
+    auto res = root_container->GetEntry(EMPTY_PLACEHOLDER_NAME, root);
     ASSERT(res == FsResult::Success, Filesystem,
            "Failed to get root romFS directory: {}", res);
 
@@ -34,7 +34,7 @@ RomFS::RomFS(IFile* file) {
     ASSERT(root_dir != nullptr, Filesystem, "Root entry is not a directory");
 
     for (const auto& [name, entry] : root_dir->GetEntries()) {
-        const auto res = AddEntry(name, entry);
+        res = AddEntry(name, entry);
         ASSERT_DEBUG(res == FsResult::Success, Filesystem,
                      "Failed to add entry");
     }

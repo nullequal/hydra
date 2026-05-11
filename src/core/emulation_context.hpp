@@ -23,7 +23,7 @@ class EmulationContext {
     using clock_t = std::chrono::steady_clock;
 
   public:
-    EmulationContext(horizon::ui::HandlerBase& ui_handler);
+    EmulationContext(horizon::ui::IHandler& ui_handler);
     ~EmulationContext();
 
     void SetSurface(void* surface) { gpu->GetRenderer().SetSurface(surface); }
@@ -69,7 +69,7 @@ class EmulationContext {
     bool loading{false};
 
     // Process
-    horizon::kernel::Process* process{nullptr};
+    horizon::kernel::Process* main_process{nullptr};
 
     // Delta time
     f32 last_dt_average{0.0f};

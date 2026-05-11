@@ -95,21 +95,21 @@ Renderer::~Renderer() {
 }
 
 void Renderer::SetSurface(void* surface) {
-    layer = reinterpret_cast<CA::MetalLayer*>(surface);
-    layer->setDevice(device);
+    ca_layer = reinterpret_cast<CA::MetalLayer*>(surface);
+    ca_layer->setDevice(device);
     // TODO: set pixel format
 }
 
 ISurfaceCompositor* Renderer::AcquireNextSurface() {
     // Drawable
-    if (!layer)
+    if (!ca_layer)
         return nullptr;
 
-    drawable = layer->nextDrawable();
-    if (!drawable)
+    ca_drawable = ca_layer->nextDrawable();
+    if (!ca_drawable)
         return nullptr;
 
-    return new SurfaceCompositor(drawable);
+    return new SurfaceCompositor(ca_drawable);
 }
 
 BufferBase* Renderer::CreateBuffer(u64 size) { return new Buffer(size); }
@@ -532,10 +532,12 @@ void Renderer::BindDrawState(CommandBuffer* command_buffer) {
     for (u32 i = 0; i < VIEWPORT_COUNT; i++) {
         // Viewport
         const auto& viewport = state.viewports[i];
-        viewports[i] =
-            MTL::Viewport(viewport.rect.origin.x(), viewport.rect.origin.y(),
-                          viewport.rect.size.x(), viewport.rect.size.y(),
-                          viewport.depth_near, viewport.depth_far);
+        viewports[i] = MTL::Viewport(static_cast<f64>(viewport.rect.origin.x()),
+                                     static_cast<f64>(viewport.rect.origin.y()),
+                                     static_cast<f64>(viewport.rect.size.x()),
+                                     static_cast<f64>(viewport.rect.size.y()),
+                                     static_cast<f64>(viewport.depth_near),
+                                     static_cast<f64>(viewport.depth_far));
 
         // Scissor
         const auto& scissor = state.scissors[i];

@@ -97,7 +97,8 @@ class Thread : public IThread {
     u128 GetSimdFpReg(u8 reg) const {
         hv_simd_fp_uchar16_t value;
         HV_ASSERT_SUCCESS(hv_vcpu_get_simd_fp_reg(
-            vcpu, (hv_simd_fp_reg_t)(HV_SIMD_FP_REG_Q0 + reg), &value));
+            vcpu, static_cast<hv_simd_fp_reg_t>(HV_SIMD_FP_REG_Q0 + reg),
+            &value));
 
         // TODO: correct?
         return std::bit_cast<u128>(value);
@@ -106,7 +107,7 @@ class Thread : public IThread {
     void SetSimdFpReg(u8 reg, u128 value) {
         // TODO: correct?
         HV_ASSERT_SUCCESS(hv_vcpu_set_simd_fp_reg(
-            vcpu, (hv_simd_fp_reg_t)(HV_SIMD_FP_REG_Q0 + reg),
+            vcpu, static_cast<hv_simd_fp_reg_t>(HV_SIMD_FP_REG_Q0 + reg),
             std::bit_cast<hv_simd_fp_uchar16_t>(value)));
     }
 

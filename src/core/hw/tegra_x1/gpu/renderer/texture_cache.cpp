@@ -10,12 +10,12 @@
 namespace hydra::hw::tegra_x1::gpu::renderer {
 
 TextureCache::~TextureCache() {
-    for (auto& [key, mem] : entries) {
-        for (auto& [key, group] : mem.cache) {
-            for (auto& [key, storage] : group.cache) {
-                delete storage.base;
-                for (auto& [key, view] : storage.view_cache)
+    for (auto& [mem_key, mem] : entries) {
+        for (auto& [group_key, group] : mem.cache) {
+            for (auto& [storage_key, storage] : group.cache) {
+                for (auto& [view_key, view] : storage.view_cache)
                     delete view;
+                delete storage.base;
             }
         }
     }
@@ -279,8 +279,8 @@ void TextureCache::Update(ICommandBuffer* command_buffer,
         const auto base = storage.base;
         const auto& descriptor = base->GetDescriptor();
         const auto range = descriptor.GetRange();
-        for (auto& [key, group] : mem.cache) {
-            for (auto& [key, other_storage] : group.cache) {
+        for (auto& [group_key, group] : mem.cache) {
+            for (auto& [storage_key, other_storage] : group.cache) {
                 // Skip this storage
                 if (&other_storage == &storage)
                     continue;

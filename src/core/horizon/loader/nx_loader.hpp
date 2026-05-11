@@ -33,7 +33,7 @@ class NxLoader : public LoaderBase {
     // Helpers
     void ParseInfo();
     void ParseNpdm();
-    void LoadCode(kernel::Process* process, filesystem::Directory* dir);
+    void LoadCode(kernel::Process* process, filesystem::Directory* exefs_dir);
 };
 
 } // namespace hydra::horizon::loader

@@ -284,8 +284,8 @@ struct AssetHeader {
 
 } // namespace
 
-void HomebrewLoader::TryLoadAssetSection(filesystem::IFile* file) {
-    auto stream = file->Open(filesystem::FileOpenFlags::Read);
+void HomebrewLoader::TryLoadAssetSection(filesystem::IFile* asset_file) {
+    auto stream = asset_file->Open(filesystem::FileOpenFlags::Read);
 
     // Header
     const auto header = stream->Read<AssetHeader>();
@@ -297,15 +297,15 @@ void HomebrewLoader::TryLoadAssetSection(filesystem::IFile* file) {
 
     // Icon
     if (header.icon_section.size > 0)
-        icon_file = header.icon_section.CreateFileView(file);
+        icon_file = header.icon_section.CreateFileView(asset_file);
 
     // NACP
     if (header.nacp_section.size > 0)
-        nacp_file = header.nacp_section.CreateFileView(file);
+        nacp_file = header.nacp_section.CreateFileView(asset_file);
 
     // RomFS
     if (header.romfs_section.size > 0)
-        romfs_entry = header.romfs_section.CreateFileView(file);
+        romfs_entry = header.romfs_section.CreateFileView(asset_file);
 
     delete stream;
 }

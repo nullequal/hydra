@@ -141,8 +141,8 @@ class Renderer : public RendererBase {
     MTL::Device* device;
     MTL::CommandQueue* command_queue;
 
-    CA::MetalLayer* layer{nullptr};
-    CA::MetalDrawable* drawable{nullptr};
+    CA::MetalLayer* ca_layer{nullptr};
+    CA::MetalDrawable* ca_drawable{nullptr};
 
     // Resources
 

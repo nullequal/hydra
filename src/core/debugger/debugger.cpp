@@ -48,9 +48,9 @@ Debugger::~Debugger() {
         delete gdb_server;
 }
 
-void Debugger::RegisterThisThread(const std::string_view name) {
+void Debugger::RegisterThisThread(const std::string_view thread_name) {
     std::unique_lock lock(mutex);
-    ASSERT(threads.try_emplace(std::this_thread::get_id(), name).second,
+    ASSERT(threads.try_emplace(std::this_thread::get_id(), thread_name).second,
            Debugger, "Failed to register thread");
 }
 

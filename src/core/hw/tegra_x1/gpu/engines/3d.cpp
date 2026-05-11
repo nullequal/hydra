@@ -243,7 +243,8 @@ ThreeD::ThreeD() {
         regs.color_write_masks[i] = ColorWriteMask::All;
 
     // HACK
-    regs.shader_programs[(u32)ShaderStage::VertexB].config.enable = true;
+    regs.shader_programs[static_cast<u32>(ShaderStage::VertexB)].config.enable =
+        true;
 }
 
 ThreeD::~ThreeD() {
@@ -423,7 +424,7 @@ void ThreeD::BindGroup(const u32 index, const u32 data) {
         LOG_WARN(Engines, "Reserved");
         break;
     case 0x4: {
-        const auto index = extract_bits(data, 4, 5);
+        const auto buffer_index = extract_bits(data, 4, 5);
         bool valid = data & 0x1;
         if (valid) {
             const uptr const_buffer_gpu_ptr =
@@ -431,9 +432,10 @@ void ThreeD::BindGroup(const u32 index, const u32 data) {
 
             const auto range = Range<uptr>::FromSize(
                 const_buffer_gpu_ptr, regs.const_buffer_selector_size);
-            bound_const_buffers[shader_stage_index][index] = range;
+            bound_const_buffers[shader_stage_index][buffer_index] = range;
         } else {
-            bound_const_buffers[shader_stage_index][index] = Range<uptr>();
+            bound_const_buffers[shader_stage_index][buffer_index] =
+                Range<uptr>();
         }
         break;
     }
@@ -600,10 +602,10 @@ renderer::Viewport ThreeD::GetViewport(u32 index) {
 
     // HACK: if depth range is [0, 0], force it to [0, 1] (many games have
     // it like this, though not on Ryujinx)
-    if (res.depth_near == 0.0 && res.depth_far == 0.0) {
+    if (res.depth_near == 0.0f && res.depth_far == 0.0f) {
         ONCE(LOG_WARN(Engines, "Depth range is [0, 0], forcing to [0, 1]"));
-        res.depth_near = 0.0;
-        res.depth_far = 1.0;
+        res.depth_near = 0.0f;
+        res.depth_far = 1.0f;
     }
 
     return res;
@@ -916,7 +918,8 @@ bool ThreeD::DrawInternal() {
     tls_crnt_gmmu->GetMmu()->FlushTrackedPages();
 
     // State
-    if (!regs.shader_programs[(u32)ShaderStage::VertexB].config.enable) {
+    if (!regs.shader_programs[static_cast<u32>(ShaderStage::VertexB)]
+             .config.enable) {
         LOG_WARN(Engines, "Vertex B stage not enabled, skipping draw");
         return false;
     }

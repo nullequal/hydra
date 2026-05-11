@@ -224,10 +224,11 @@ class LangEmitter : public Emitter {
             case ir::ScalarType::U32:
                 return GetConstantStr<u32>(imm);
             case ir::ScalarType::I8:
-                return GetConstantStr<i32>(std::bit_cast<i8>((u8)(imm & 0xff)));
+                return GetConstantStr<i32>(
+                    std::bit_cast<i8>(static_cast<u8>(imm & 0xff)));
             case ir::ScalarType::I16:
                 return GetConstantStr<i32>(
-                    std::bit_cast<i16>((u16)(imm & 0xffff)));
+                    std::bit_cast<i16>(static_cast<u16>(imm & 0xffff)));
             case ir::ScalarType::I32:
                 return GetConstantStr<i32>(std::bit_cast<i32>(imm));
             case ir::ScalarType::F16:

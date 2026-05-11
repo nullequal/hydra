@@ -30,8 +30,9 @@ void ServerSession::Receive(IThread* crnt_thread) {
     requests.pop();
 
     // Copy the message to server TLS
-    memcpy((void*)crnt_thread->GetTlsPtr(), (void*)active_request->ptr,
-           MSG_BUFFER_MAX_SIZE);
+    std::memcpy(reinterpret_cast<void*>(crnt_thread->GetTlsPtr()),
+                reinterpret_cast<void*>(active_request->ptr),
+                MSG_BUFFER_MAX_SIZE);
 
     // Clear if no more requests
     if (requests.empty())
@@ -42,8 +43,8 @@ void ServerSession::Reply(uptr ptr) {
     std::lock_guard lock(mutex);
 
     // Copy the message to client TLS
-    memcpy((void*)active_request->client_thread->GetTlsPtr(), (void*)ptr,
-           MSG_BUFFER_MAX_SIZE);
+    memcpy(reinterpret_cast<void*>(active_request->client_thread->GetTlsPtr()),
+           reinterpret_cast<void*>(ptr), MSG_BUFFER_MAX_SIZE);
 
     // Resume the client thread
     active_request->client_thread->Resume();

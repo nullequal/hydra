@@ -710,7 +710,7 @@ HYDRA_EXPORT void hydra_user_set_avatar_path(void* user, hydra_string path) {
 
 // Emulation context
 // TODO: proper UI handler
-class UIHandler : public hydra::horizon::ui::HandlerBase {
+class UiHandler : public hydra::horizon::ui::IHandler {
   public:
     void ShowMessageDialog(const hydra::horizon::ui::MessageDialogType type,
                            const std::string& title,
@@ -734,7 +734,7 @@ class UIHandler : public hydra::horizon::ui::HandlerBase {
 };
 
 HYDRA_EXPORT void* hydra_create_emulation_context() {
-    return new hydra::EmulationContext(*(new UIHandler()));
+    return new hydra::EmulationContext(*(new UiHandler()));
 }
 
 HYDRA_EXPORT void hydra_emulation_context_destroy(void* ctx) {

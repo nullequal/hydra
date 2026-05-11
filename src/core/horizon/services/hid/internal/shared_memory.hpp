@@ -67,14 +67,15 @@ struct RingLifo {
     u64 ReadCount() { return atomic_load(&count); }
 
     AtomicStorage& GetCurrentAtomicStorage() {
-        const auto count = std::min(ReadCount(), 1ull); // TODO: why limit to 1?
-        if (count == 0) {
+        const auto count_ =
+            std::min(ReadCount(), 1ull); // TODO: why limit to 1?
+        if (count_ == 0) {
             throw Error::NoStorage; // TODO: what to do?
         }
 
-        auto index = ReadIndex();
+        auto index_ = ReadIndex();
         const auto storage_index =
-            (index + 1 - count) % max_entries; // TODO: correct?
+            (index_ + 1 - count_) % max_entries; // TODO: correct?
         auto& storage = storages[storage_index];
         // TODO: verify sampling numbers
 

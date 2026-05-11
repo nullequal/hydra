@@ -69,8 +69,8 @@ bool Keyboard::IsPressedImpl(Key key) {
 
 #undef KEY_CASE
 
-    return [[((GCKeyboard*)handle).keyboardInput buttonForKeyCode:gc_key_code]
-        isPressed];
+    return [[(reinterpret_cast<GCKeyboard*>(handle)).keyboardInput
+        buttonForKeyCode:gc_key_code] isPressed];
 }
 
 } // namespace hydra::input::apple_gc

@@ -2,6 +2,7 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 
 #include <Metal/Metal.hpp>
 #include <QuartzCore/QuartzCore.hpp>
@@ -13,7 +14,7 @@
 namespace hydra::hw::tegra_x1::gpu::renderer::metal {
 
 __attribute__((unused)) static inline void StackAutoRelease(void* object) {
-    (*(NS::Object**)object)->release();
+    (*reinterpret_cast<NS::Object**>(object))->release();
 }
 
 #define NS_STACK_SCOPED                                                        \

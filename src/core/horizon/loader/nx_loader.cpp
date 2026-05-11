@@ -140,14 +140,15 @@ void NxLoader::ParseNpdm() {
     system_resource_size = meta.system_resource_size;
 }
 
-void NxLoader::LoadCode(kernel::Process* process, filesystem::Directory* dir) {
+void NxLoader::LoadCode(kernel::Process* process,
+                        filesystem::Directory* exefs_dir) {
     // HACK: if rtld is not present, use main as the entry point
     std::string entry_point = "rtld";
     filesystem::IEntry* e;
-    if (dir->GetEntry("rtld", e) == filesystem::FsResult::DoesNotExist)
+    if (exefs_dir->GetEntry("rtld", e) == filesystem::FsResult::DoesNotExist)
         entry_point = "main";
 
-    for (const auto& [filename, entry] : dir->GetEntries()) {
+    for (const auto& [filename, entry] : exefs_dir->GetEntries()) {
         auto file = dynamic_cast<filesystem::IFile*>(entry);
         ASSERT(file, Loader, "Code entry is not a file");
         if (filename == "main.npdm") {

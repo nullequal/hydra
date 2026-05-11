@@ -7,7 +7,8 @@ namespace hydra::horizon::kernel {
 class AutoObject {
   public:
     AutoObject(const std::string_view debug_name_ = "AutoObject")
-        : debug_name{fmt::format("{} {}", debug_name_, (void*)this)} {}
+        : debug_name{fmt::format("{} {}", debug_name_,
+                                 reinterpret_cast<void*>(this))} {}
 
     void Retain() { ref_count.fetch_add(1, std::memory_order_relaxed); }
 

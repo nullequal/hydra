@@ -5,13 +5,14 @@
 namespace hydra::horizon::kernel::hipc {
 
 u8* get_buffer_ptr(const hw::tegra_x1::cpu::IMmu* mmu,
-                   const BufferDescriptor& descriptor, usize& size) {
-    uptr addr = descriptor.address_low | (u64)descriptor.address_mid << 32 |
-                (u64)descriptor.address_high << 36;
+                   const BufferDescriptor& descriptor, u64& size) {
+    uptr addr = descriptor.address_low |
+                static_cast<u64>(descriptor.address_mid) << 32 |
+                static_cast<u64>(descriptor.address_high) << 36;
     if (addr == 0x0)
         return nullptr;
 
-    size = descriptor.size_low | (usize)descriptor.size_high << 32;
+    size = descriptor.size_low | static_cast<u64>(descriptor.size_high) << 32;
     if (size == 0x0)
         return nullptr;
 
@@ -19,9 +20,10 @@ u8* get_buffer_ptr(const hw::tegra_x1::cpu::IMmu* mmu,
 }
 
 u8* get_static_ptr(const hw::tegra_x1::cpu::IMmu* mmu,
-                   const StaticDescriptor& descriptor, usize& size) {
-    uptr addr = descriptor.address_low | (u64)descriptor.address_mid << 32 |
-                (u64)descriptor.address_high << 36;
+                   const StaticDescriptor& descriptor, u64& size) {
+    uptr addr = descriptor.address_low |
+                static_cast<u64>(descriptor.address_mid) << 32 |
+                static_cast<u64>(descriptor.address_high) << 36;
     if (addr == 0x0)
         return nullptr;
 
@@ -33,8 +35,9 @@ u8* get_static_ptr(const hw::tegra_x1::cpu::IMmu* mmu,
 }
 
 u8* get_list_entry_ptr(const hw::tegra_x1::cpu::IMmu* mmu,
-                       const RecvListEntry& descriptor, usize& size) {
-    uptr addr = descriptor.address_low | (u64)descriptor.address_high << 32;
+                       const RecvListEntry& descriptor, u64& size) {
+    uptr addr = descriptor.address_low |
+                static_cast<u64>(descriptor.address_high) << 32;
     if (addr == 0x0)
         return nullptr;
 

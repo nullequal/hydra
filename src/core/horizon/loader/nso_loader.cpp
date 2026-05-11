@@ -203,12 +203,12 @@ void NsoLoader::LoadProcess(kernel::Process* process) {
 
     // Register
     for (const auto& symbol : dyn_sym) {
-        std::string_view name(dyn_str.data() + symbol.st_name);
+        std::string_view symbol_name(dyn_str.data() + symbol.st_name);
         if (symbol.st_shndx != 0) {
             DEBUGGER_MANAGER_INSTANCE.GetDebugger(process)
                 .GetFunctionTable()
                 .RegisterSymbol(
-                    {demangle(std::string(name)),
+                    {demangle(std::string(symbol_name)),
                      Range<vaddr_t>(base + symbol.st_value,
                                     base + symbol.st_value + symbol.st_size)});
         }

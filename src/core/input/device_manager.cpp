@@ -93,17 +93,19 @@ std::map<u32, TouchState> DeviceManager::PollTouch() {
         return state;
 
     // Process touches
-    u64 touch_id;
-    while ((touch_id = device->GetNextBeganTouchID()) != invalid<u64>()) {
-        active_touches.insert({touch_id, BeginTouch()});
-    }
+    {
+        u64 touch_id;
+        while ((touch_id = device->GetNextBeganTouchID()) != invalid<u64>()) {
+            active_touches.insert({touch_id, BeginTouch()});
+        }
 
-    while ((touch_id = device->GetNextEndedTouchID()) != invalid<u64>()) {
-        auto it = active_touches.find(touch_id);
-        ASSERT(it != active_touches.end(), Input, "Touch 0x{:016x} not active",
-               touch_id);
-        EndTouch(it->second);
-        active_touches.erase(it);
+        while ((touch_id = device->GetNextEndedTouchID()) != invalid<u64>()) {
+            auto it = active_touches.find(touch_id);
+            ASSERT(it != active_touches.end(), Input,
+                   "Touch 0x{:016x} not active", touch_id);
+            EndTouch(it->second);
+            active_touches.erase(it);
+        }
     }
 
     // Set touch state

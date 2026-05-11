@@ -60,7 +60,8 @@ UserManager::UserManager() {
                 std::stoull(user_id_str.substr(0, 16), nullptr, 16);
             u64 user_id_lo =
                 std::stoull(user_id_str.substr(16, 16), nullptr, 16);
-            uuid_t user_id = (uuid_t)user_id_lo | ((uuid_t)user_id_hi << 64);
+            uuid_t user_id = static_cast<uuid_t>(user_id_lo) |
+                             (static_cast<uuid_t>(user_id_hi) << 64);
 
             Deserialize(user_id);
         }

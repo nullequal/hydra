@@ -23,14 +23,14 @@ class LibraryAppletController;
 }
 
 namespace ui {
-class HandlerBase;
+class IHandler;
 }
 
 class OS {
   public:
     static OS& GetInstance();
 
-    OS(audio::ICore& audio_core_, ui::HandlerBase& ui_handler_);
+    OS(audio::ICore& audio_core_, ui::IHandler& ui_handler_);
     ~OS();
 
     void NotifyOperationModeChanged();
@@ -40,7 +40,7 @@ class OS {
 
   private:
     audio::ICore& audio_core;
-    ui::HandlerBase& ui_handler;
+    ui::IHandler& ui_handler;
 
     kernel::Kernel kernel;
 

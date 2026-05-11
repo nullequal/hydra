@@ -50,22 +50,24 @@ using DeviceList = hydra::input::apple_gc::DeviceList;
 }
 
 - (void)controllerConnected:(NSNotification*)notification {
-    GCController* controller = (GCController*)notification.object;
+    GCController* controller =
+        reinterpret_cast<GCController*>(notification.object);
     _parent->_AddController(controller);
 }
 
 - (void)controllerDisconnected:(NSNotification*)notification {
-    GCController* controller = (GCController*)notification.object;
+    GCController* controller =
+        reinterpret_cast<GCController*>(notification.object);
     _parent->_RemoveController(controller);
 }
 
 - (void)keyboardConnected:(NSNotification*)notification {
-    GCKeyboard* keyboard = (GCKeyboard*)notification.object;
+    GCKeyboard* keyboard = reinterpret_cast<GCKeyboard*>(notification.object);
     _parent->_AddKeyboard(keyboard);
 }
 
 - (void)keyboardDisconnected:(NSNotification*)notification {
-    GCKeyboard* keyboard = (GCKeyboard*)notification.object;
+    GCKeyboard* keyboard = reinterpret_cast<GCKeyboard*>(notification.object);
     _parent->_RemoveKeyboard(keyboard);
 }
 

@@ -22,11 +22,11 @@ RenderPass::RenderPass(const RenderPassDescriptor& descriptor)
                 ->GetTexture());
         if (color_target.load_action_clear) {
             color_attachment->setLoadAction(MTL::LoadActionClear);
-            color_attachment->setClearColor(
-                MTL::ClearColor(color_target.clear_data.color[0],
-                                color_target.clear_data.color[1],
-                                color_target.clear_data.color[2],
-                                color_target.clear_data.color[3]));
+            color_attachment->setClearColor(MTL::ClearColor(
+                static_cast<f64>(color_target.clear_data.color[0]),
+                static_cast<f64>(color_target.clear_data.color[1]),
+                static_cast<f64>(color_target.clear_data.color[2]),
+                static_cast<f64>(color_target.clear_data.color[3])));
         } else {
             color_attachment->setLoadAction(MTL::LoadActionLoad);
         }
@@ -49,7 +49,7 @@ RenderPass::RenderPass(const RenderPassDescriptor& descriptor)
                 depth_stencil_target.clear_data.clear_depth) {
                 depth_attachment->setLoadAction(MTL::LoadActionClear);
                 depth_attachment->setClearDepth(
-                    depth_stencil_target.clear_data.depth);
+                    static_cast<f64>(depth_stencil_target.clear_data.depth));
             } else {
                 depth_attachment->setLoadAction(MTL::LoadActionLoad);
             }

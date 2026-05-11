@@ -62,7 +62,7 @@ result_t Applet::Run() {
     {
         usize size = sizeof(SoftwareKeyboardResult) +
                      (output_text.size() + 1) * sizeof(char16_t);
-        auto ptr = (u8*)malloc(size);
+        auto ptr = reinterpret_cast<u8*>(std::malloc(size));
         io::MemoryStream stream(std::span(ptr, size));
         stream.Write(result);
         stream.WriteSpan(std::span<const char16_t>(output_text));

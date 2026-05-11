@@ -5,14 +5,14 @@
 
 namespace hydra::horizon::ui {
 
-// TODO: support 16-bit chars
-class HandlerBase {
+class IHandler {
   public:
+    virtual ~IHandler() = default;
+
     // TODO: detail
     virtual void ShowMessageDialog(const MessageDialogType type,
                                    const std::string& title,
                                    const std::string& message) = 0;
-    // TODO: more texts
     virtual applets::software_keyboard::SoftwareKeyboardResult
     ShowSoftwareKeyboard(const std::string& header_text,
                          const std::string& sub_text,

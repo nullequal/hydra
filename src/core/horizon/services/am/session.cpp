@@ -11,7 +11,7 @@ result_t ISession::SetPerformanceConfiguration(PerformanceMode mode,
 
     ASSERT_DEBUG(mode != PerformanceMode::Invalid, Services,
                  "Invalid performance mode");
-    performance_configs[(u32)mode] = config;
+    performance_configs[static_cast<u32>(mode)] = config;
     return RESULT_SUCCESS;
 }
 
@@ -21,7 +21,7 @@ result_t ISession::GetPerformanceConfiguration(PerformanceMode mode,
 
     ASSERT_DEBUG(mode != PerformanceMode::Invalid, Services,
                  "Invalid performance mode");
-    *out_config = performance_configs[(u32)mode];
+    *out_config = performance_configs[static_cast<u32>(mode)];
     return RESULT_SUCCESS;
 }
 

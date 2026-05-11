@@ -14,7 +14,7 @@ class HomebrewLoader : public LoaderBase {
     filesystem::IFile* file;
     NroLoader nro_loader;
 
-    void TryLoadAssetSection(filesystem::IFile* file);
+    void TryLoadAssetSection(filesystem::IFile* asset_file);
 };
 
 } // namespace hydra::horizon::loader

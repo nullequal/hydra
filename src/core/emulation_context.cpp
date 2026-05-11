@@ -5,6 +5,7 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
 
 #include <hatch/hatch.hpp>
 
@@ -54,7 +55,7 @@ CombinedTextureView::~CombinedTextureView() {
     // delete base;
 }
 
-EmulationContext::EmulationContext(horizon::ui::HandlerBase& ui_handler) {
+EmulationContext::EmulationContext(horizon::ui::IHandler& ui_handler) {
     LOGGER_INSTANCE.SetOutput(CONFIG_INSTANCE.GetLogOutput());
 
     // Random
@@ -126,12 +127,12 @@ EmulationContext::~EmulationContext() {
 
 void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
     // Process
-    ASSERT_THROWING(process == nullptr, Other,
+    ASSERT_THROWING(main_process == nullptr, Other,
                     LoadAndStartError::ProcessAlreadyExists,
                     "Process already exists");
-    process =
+    main_process =
         os->GetKernel().GetProcessManager().CreateProcess("Guest process");
-    loader->LoadProcess(process);
+    loader->LoadProcess(main_process);
 
     // Check for firmware applets
     auto controller = new horizon::services::am::LibraryAppletController(
@@ -180,7 +181,7 @@ void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
         controller->PushInData(
             new horizon::services::am::IStorage(private_arg));
 
-        auto arg_ptr = (u8*)malloc(sizeof(arg));
+        auto arg_ptr = reinterpret_cast<u8*>(malloc(sizeof(arg)));
         memcpy(arg_ptr, &arg, sizeof(arg));
         controller->PushInData(new horizon::services::am::IStorage(arg_ptr));
 
@@ -377,13 +378,13 @@ void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
 
         if (!std::filesystem::is_directory(patch_path)) {
             // File
-            TryApplyPatch(process, target_patch_filename, patch_path);
+            TryApplyPatch(main_process, target_patch_filename, patch_path);
         } else {
             // Directory
             // TODO: iterate recursively
             for (const auto& dir_entry :
                  std::filesystem::directory_iterator{patch_path}) {
-                TryApplyPatch(process, target_patch_filename,
+                TryApplyPatch(main_process, target_patch_filename,
                               dir_entry.path().string());
             }
         }
@@ -396,9 +397,9 @@ void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
 
     // Enter focus
     // HACK: games expect focus change to be the second message?
-    process->GetAppletState().SendMessage(
+    main_process->GetAppletState().SendMessage(
         horizon::kernel::AppletMessage::Resume);
-    process->GetAppletState().SetFocusState(
+    main_process->GetAppletState().SetFocusState(
         horizon::kernel::AppletFocusState::InFocus);
 
     // Preselected user
@@ -414,22 +415,22 @@ void EmulationContext::LoadAndStart(horizon::loader::LoaderBase* loader) {
     }
 
     if (user_id != horizon::services::account::internal::INVALID_USER_ID) {
-        process->GetAppletState().PushPreselectedUser(user_id);
+        main_process->GetAppletState().PushPreselectedUser(user_id);
         LOG_INFO(Other, "Preselected user with ID {:032x}", user_id);
     }
 
-    process->Start();
+    main_process->Start();
 
     // Activate GDB server
     if (CONFIG_INSTANCE.GetGdbEnabled()) {
         if (CONFIG_INSTANCE.GetGdbWaitForClient())
-            process->GetMainThread()->SupervisorPause();
+            main_process->GetMainThread()->SupervisorPause();
 
         // HACK: spinlock until the main thread is running
-        while (!process->IsRunning())
+        while (!main_process->IsRunning())
             std::this_thread::yield();
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        DEBUGGER_MANAGER_INSTANCE.GetDebugger(process).ActivateGdbServer();
+        DEBUGGER_MANAGER_INSTANCE.GetDebugger(main_process).ActivateGdbServer();
     }
 
     // Loading screen
@@ -495,7 +496,8 @@ void EmulationContext::ProgressFrame(u32 width, u32 height,
 
     // Delta time
     {
-        auto layer = os->GetDisplayDriver().GetFirstLayerForProcess(process);
+        auto layer =
+            os->GetDisplayDriver().GetFirstLayerForProcess(main_process);
         if (layer)
             accumulated_dt += layer->GetAccumulatedDT();
     }
@@ -543,8 +545,9 @@ void EmulationContext::ProgressFrame(u32 width, u32 height,
             // Nintendo logo
             if (nintendo_logo) {
                 const auto tex = *nintendo_logo;
-                int2 size = {(i32)tex.base->GetDescriptor().width,
-                             (i32)tex.base->GetDescriptor().height};
+                int2 size = {
+                    static_cast<i32>(tex.base->GetDescriptor().width),
+                    static_cast<i32>(tex.base->GetDescriptor().height)};
                 int2 dst_offset = {32, 32};
                 compositor->DrawTexture(
                     command_buffer, tex.view, IntRect2D({0, 0}, size),
@@ -562,10 +565,11 @@ void EmulationContext::ProgressFrame(u32 width, u32 height,
                 }
 
                 auto frame = startup_movie[startup_movie_frame];
-                int2 size = {(i32)frame.base->GetDescriptor().width,
-                             (i32)frame.base->GetDescriptor().height};
-                int2 dst_offset = {(i32)width - size.x() - 32,
-                                   (i32)height - size.y() - 32};
+                int2 size = {
+                    static_cast<i32>(frame.base->GetDescriptor().width),
+                    static_cast<i32>(frame.base->GetDescriptor().height)};
+                int2 dst_offset = {static_cast<i32>(width) - size.x() - 32,
+                                   static_cast<i32>(height) - size.y() - 32};
                 compositor->DrawTexture(
                     command_buffer, frame.view, IntRect2D({0, 0}, size),
                     IntRect2D(dst_offset, size), true, opacity);
@@ -577,7 +581,7 @@ void EmulationContext::ProgressFrame(u32 width, u32 height,
         const auto time_since_last_dt_averaging = now - last_dt_averaging_time;
         if (time_since_last_dt_averaging > 1s) {
             if (bool(accumulated_dt))
-                last_dt_average = f32(accumulated_dt);
+                last_dt_average = static_cast<f32>(accumulated_dt);
             else
                 last_dt_average = 0.f;
             accumulated_dt = {};
@@ -599,10 +603,10 @@ void EmulationContext::ProgressFrame(u32 width, u32 height,
 }
 
 bool EmulationContext::IsRunning() const {
-    if (!process)
+    if (!main_process)
         return false;
 
-    switch (process->GetState()) {
+    switch (main_process->GetState()) {
     case horizon::kernel::ProcessState::Started:
     case horizon::kernel::ProcessState::Exiting:
         return true;
@@ -612,7 +616,7 @@ bool EmulationContext::IsRunning() const {
 }
 
 void EmulationContext::TakeScreenshot() {
-    auto layer = os->GetDisplayDriver().GetFirstLayerForProcess(process);
+    auto layer = os->GetDisplayDriver().GetFirstLayerForProcess(main_process);
     if (!layer)
         return;
 
@@ -652,7 +656,7 @@ void EmulationContext::TakeScreenshot() {
 
         stbi_flip_vertically_on_write(flip_y);
         if (!stbi_write_jpg(filename.c_str(), rect.size.x(), rect.size.y(), 4,
-                            (void*)buffer->GetPtr(), 100))
+                            reinterpret_cast<void*>(buffer->GetPtr()), 100))
             LOG_ERROR(Other, "Failed to save screenshot to {}", filename);
         stbi_flip_vertically_on_write(false);
 

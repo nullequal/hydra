@@ -106,8 +106,8 @@ class IPcvService : public IService {
 
   private:
     // TODO: other clock rates
-    u32 clock_rates[(u32)ModuleId::Count] = {hw::GUEST_CNTFRQ,
-                                             hw::GPU_TICK_FREQ};
+    u32 clock_rates[static_cast<u32>(ModuleId::Count)] = {hw::GUEST_CNTFRQ,
+                                                          hw::GPU_TICK_FREQ};
 
     // Commands
     result_t SetClockRate(ModuleId module_id, u32 rate);

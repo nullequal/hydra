@@ -4,7 +4,12 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
 #include <nx2elf.h>
+
+#pragma GCC diagnostic pop
 
 #include "core/debugger/debugger_manager.hpp"
 #include "core/horizon/filesystem/file.hpp"
@@ -235,8 +240,8 @@ GdbServer::GdbServer(Debugger& debugger_) : debugger{debugger_} {
 
     // Set the socket to reuse address
     i32 opt = 1;
-    setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, (char*)&opt,
-               sizeof(opt));
+    setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR,
+               reinterpret_cast<char*>(&opt), sizeof(opt));
 
     // Bind the socket to the address
     sockaddr_in addr;
@@ -328,7 +333,8 @@ void GdbServer::Poll() {
         sockaddr_in client_addr{};
         socklen_t addr_len = sizeof(client_addr);
         i32 new_client =
-            accept(server_socket, (sockaddr*)&client_addr, &addr_len);
+            accept(server_socket, reinterpret_cast<sockaddr*>(&client_addr),
+                   &addr_len);
 
         if (new_client != -1) {
             client_socket = new_client;

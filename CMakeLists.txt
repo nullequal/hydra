@@ -121,7 +121,27 @@ add_subdirectory(externals/nx2elf)
 
 set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
 add_library(hydra_warnings INTERFACE)
-target_compile_options(hydra_warnings INTERFACE -Wall -Wextra -Wconversion -Wsign-conversion -Wno-vla-extension)
+target_compile_options(hydra_warnings INTERFACE
+    -Wall
+    -Wextra
+    -Wpedantic
+    -Wconversion
+    -Wsign-conversion
+    -Wimplicit-int-float-conversion
+    -Wshadow
+    -Wdouble-promotion
+    -Wundef
+    -Wnon-virtual-dtor
+    -Wold-style-cast
+
+    # Extensions
+    -Wno-gnu-anonymous-struct
+    -Wno-nested-anon-types
+    -Wno-zero-length-array
+    -Wno-vla-extension
+    -Wno-gnu-case-range
+    -Wno-c99-extensions
+)
 
 include_directories(externals/metal-cpp externals/dynarmic externals/stb)
 

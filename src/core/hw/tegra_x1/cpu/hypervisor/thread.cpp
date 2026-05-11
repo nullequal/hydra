@@ -272,7 +272,7 @@ void Thread::Run() {
         } else {
             // TODO: don't cast to u32
             LOG_ERROR(Hypervisor, "Unexpected VM exit reason {}",
-                      (u32)exit->reason);
+                      static_cast<u32>(exit->reason));
 
             GET_CURRENT_PROCESS_DEBUGGER().BreakOnThisThread(
                 "unexpected VM exit reason");
