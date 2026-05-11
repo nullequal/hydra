@@ -45,8 +45,8 @@ void Buffer::CopyFrom(ICommandBuffer* command_buffer, ITextureView* src,
 }
 
 void Buffer::CopyFromImpl(const uptr data, u64 dst_offset, u64 size_) {
-    memcpy((u8*)buffer->contents() + dst_offset, reinterpret_cast<void*>(data),
-           size_);
+    memcpy(reinterpret_cast<u8*>(buffer->contents()) + dst_offset,
+           reinterpret_cast<void*>(data), size_);
 }
 
 void Buffer::CopyFromImpl(ICommandBuffer* command_buffer, BufferBase* src,

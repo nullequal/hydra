@@ -37,9 +37,11 @@ void SurfaceCompositor::DrawTexture(ICommandBuffer* command_buffer,
     encoder->setRenderPipelineState(
         METAL_RENDERER_INSTANCE.GetBlitPipelineCache()->Find(
             {drawable->texture()->pixelFormat(), transparent}));
-    encoder->setViewport(MTL::Viewport{
-        (f64)dst_rect.origin.x(), (f64)dst_rect.origin.y(),
-        (f64)dst_rect.size.x(), (f64)dst_rect.size.y(), 0.0, 1.0});
+    encoder->setViewport(MTL::Viewport{static_cast<f64>(dst_rect.origin.x()),
+                                       static_cast<f64>(dst_rect.origin.y()),
+                                       static_cast<f64>(dst_rect.size.x()),
+                                       static_cast<f64>(dst_rect.size.y()), 0.0,
+                                       1.0});
 
     u32 zero = 0;
     encoder->setVertexBytes(&zero, sizeof(zero), 0);

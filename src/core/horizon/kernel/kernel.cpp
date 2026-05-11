@@ -1305,9 +1305,10 @@ result_t Kernel::ControlCodeMemory(CodeMemory* code_memory,
 result_t Kernel::GetProcessList(u64* process_id_buffer,
                                 u32 process_id_buffer_size, u32& out_count) {
     LOG_DEBUG(Kernel,
-              "GetProcessList called (process_id_buffer: {}, "
-              "process_id_buffer_size: {})",
-              (void*)process_id_buffer, process_id_buffer_size);
+              "GetProcessList called (process ID buffer: {}, "
+              "process ID buffer size: {})",
+              reinterpret_cast<void*>(process_id_buffer),
+              process_id_buffer_size);
 
     // TODO: is process_id_buffer_size in bytes or number of process IDs?
     for (auto it = process_manager.Begin();

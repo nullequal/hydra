@@ -141,7 +141,7 @@ void Window::UpdateWindowTitle() {
     if (dt == 0.0f)
         fps_str = "0";
     else
-        fps_str = std::to_string((u32)std::round(1.0f / dt));
+        fps_str = std::to_string(static_cast<u32>(std::round(1.0f / dt)));
 
     // TODO: title name
     const auto title =
