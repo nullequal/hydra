@@ -50,22 +50,21 @@ void Copy::LaunchDMA(const u32 index, const LaunchDMAData data) {
                 Range<uptr>::FromSize(dst_ptr,
                                       regs.line_count * regs.stride_out));
         } else {
-            // Encode as Generic 16BX2
             // TODO: block size log2 can also be negative?
-            encode_generic_16bx2(dst_stride, regs.line_count,
-                                 static_cast<u32>(get_block_size_log2(
-                                     regs.dst.block_size.height)),
-                                 reinterpret_cast<u8*>(src_ptr),
-                                 reinterpret_cast<u8*>(dst_ptr));
+            ConvertLinearToBlockLinear(dst_stride, regs.line_count,
+                                       static_cast<u32>(get_block_size_log2(
+                                           regs.dst.block_size.height)),
+                                       reinterpret_cast<u8*>(src_ptr),
+                                       reinterpret_cast<u8*>(dst_ptr));
         }
     } else {
         if (data.dst_memory_layout == MemoryLayout::Pitch) {
             // TODO: block size log2 can also be negative?
-            decode_generic_16bx2(src_stride, regs.line_count,
-                                 static_cast<u32>(get_block_size_log2(
-                                     regs.src.block_size.height)),
-                                 reinterpret_cast<u8*>(src_ptr),
-                                 reinterpret_cast<u8*>(dst_ptr));
+            ConvertBlockLinearToLinear(src_stride, regs.line_count,
+                                       static_cast<u32>(get_block_size_log2(
+                                           regs.src.block_size.height)),
+                                       reinterpret_cast<u8*>(src_ptr),
+                                       reinterpret_cast<u8*>(dst_ptr));
         } else {
             LOG_NOT_IMPLEMENTED(Engines, "BlockLinear to BlockLinear");
         }

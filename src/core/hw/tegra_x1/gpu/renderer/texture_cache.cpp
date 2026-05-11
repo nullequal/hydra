@@ -431,12 +431,12 @@ void TextureCache::DecodeTexture(ICommandBuffer* command_buffer,
         std::memcpy(out_data, in_data, descriptor.GetSize());
     } else {
         // HACK
-        decode_generic_16bx2(align(get_texture_format_stride(descriptor.format,
-                                                             descriptor.width),
-                                   64u),
-                             descriptor.layer_count * descriptor.depth *
-                                 descriptor.height,
-                             descriptor.block_height_log2, in_data, out_data);
+        ConvertBlockLinearToLinear(
+            align(
+                get_texture_format_stride(descriptor.format, descriptor.width),
+                64u),
+            descriptor.layer_count * descriptor.depth * descriptor.height,
+            descriptor.block_height_log2, in_data, out_data);
     }
 
     storage.base->CopyFrom(command_buffer, tmp_buffer);
