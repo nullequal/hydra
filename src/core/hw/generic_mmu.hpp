@@ -51,12 +51,12 @@ class GenericMmu {
 
     template <typename T>
     T Load(uptr addr) const {
-        return *reinterpret_cast<T*>(THIS->UnmapAddr(addr));
+        return *reinterpret_cast<T*>(CONST_THIS->UnmapAddr(addr));
     }
 
     template <typename T>
     void Store(uptr addr, T value) const {
-        *reinterpret_cast<T*>(THIS->UnmapAddr(addr)) = value;
+        *reinterpret_cast<T*>(CONST_THIS->UnmapAddr(addr)) = value;
     }
 
   private:

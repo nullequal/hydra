@@ -4,9 +4,9 @@
 
 namespace hydra::hw::tegra_x1::gpu {
 
-uptr GMmu::UnmapAddr(uptr gpu_addr) {
+uptr GMmu::UnmapAddr(uptr gpu_addr) const {
     uptr base;
-    auto as = FindAddrImpl(gpu_addr, base);
+    const auto& as = FindAddrImpl(gpu_addr, base);
     ASSERT_DEBUG(as.ptr != 0x0, Gpu, "Address 0x{:08x} is not host mapped",
                  gpu_addr);
 

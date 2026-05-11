@@ -89,16 +89,10 @@ T random() {
     return rand() & all_ones<T>();
 }
 
-inline u64 random64() { return (u64)rand() | ((u64)rand() << 32); }
-
-inline u128 random128() {
-    return (u128)rand() | ((u128)rand() << 32) | ((u128)rand() << 64) |
-           ((u128)rand() << 96);
-}
-
 inline constexpr u32 make_magic4(const char c0, const char c1, const char c2,
                                  const char c3) {
-    return (u32)c0 | (u32)c1 << 8 | (u32)c2 << 16 | (u32)c3 << 24;
+    return static_cast<u32>(c0) | static_cast<u32>(c1) << 8 |
+           static_cast<u32>(c2) << 16 | static_cast<u32>(c3) << 24;
 }
 
 inline std::string to_lower(const std::string_view str) {

@@ -32,7 +32,6 @@ elseif (FRONTEND STREQUAL "SwiftUI")
         swiftui/Api.swift
         swiftui/HydraApp.swift
         swiftui/ContentView.swift
-        swiftui/MenuCommands.swift
         swiftui/GameListToolbarItems.swift
         swiftui/EmulationToolbarItems.swift
         swiftui/Game.swift
@@ -77,12 +76,18 @@ elseif (FRONTEND STREQUAL "SwiftUI")
         swiftui/debugger/DebuggerView.swift
         swiftui/debugger/DebuggerListView.swift
         swiftui/debugger/DebuggersView.swift
-        swiftui/texture_viewer/TextureViewer.swift
-        swiftui/texture_viewer/TextureListView.swift
     )
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        target_sources(hydra PRIVATE swiftui/macos/AppDelegate.swift swiftui/macos/KeyCatcherView.swift swiftui/macos/PathControl.swift swiftui/macos/SavePanel.swift)
+        target_sources(hydra PRIVATE
+            swiftui/MenuCommands.swift
+            swiftui/macos/AppDelegate.swift
+            swiftui/macos/KeyCatcherView.swift
+            swiftui/macos/PathControl.swift
+            swiftui/macos/SavePanel.swift
+            swiftui/texture_viewer/TextureViewer.swift
+            swiftui/texture_viewer/TextureListView.swift
+        )
     endif ()
 
     target_compile_definitions(hydra PRIVATE ${SWIFT_BUILD_TYPE_CONDITION})
@@ -122,7 +127,7 @@ if (MACOS_BUNDLE)
             XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED YES
             XCODE_ATTRIBUTE_CODE_SIGN_STYLE "Automatic"
             XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.github.${PROJECT_NAME}"
-            XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET 17.4.0
+            XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${IOS_DEPLOYMENT_TARGET}
             XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"  # iPhone and iPad
             # TODO: development team
             XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${PROJECT_SOURCE_DIR}/hydra.ios.entitlements"

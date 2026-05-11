@@ -25,7 +25,9 @@ class StreamView : public IStream {
     void WriteRaw(std::span<const u8> buffer) override {
         base->WriteRaw(buffer);
     }
-    u8* ConsumePtrRaw(usize size) override { return base->ConsumePtrRaw(size); }
+    u8* ConsumePtrRaw(usize size_) override {
+        return base->ConsumePtrRaw(size_);
+    }
 
   protected:
     IStream* base;

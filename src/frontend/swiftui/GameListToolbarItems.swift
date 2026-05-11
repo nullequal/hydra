@@ -38,7 +38,7 @@ struct GameListToolbarItems: ToolbarContent {
             }
         #endif
 
-        var firmwarePath = hydraConfigGetFirmwarePath()
+        let firmwarePath = hydraConfigGetFirmwarePath()
         if firmwarePath.isEmpty {
             ToolbarItem(placement: installFirmwarePlacement) {
                 Button("Install Firmware") {

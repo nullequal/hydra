@@ -80,9 +80,9 @@ void UserManager::Flush() {
 
 uuid_t UserManager::CreateUser() {
     // First, find an available ID
-    uuid_t user_id = random128();
-    while (user_id == 0x0 || users.contains(user_id))
-        user_id = random128();
+    uuid_t user_id = 0x8000000000000001;
+    while (users.contains(user_id))
+        user_id += 1;
 
     // Create
     User new_user(DEFAULT_USER_NAME, uchar3({100, 105, 112}),

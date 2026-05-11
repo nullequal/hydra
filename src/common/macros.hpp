@@ -15,8 +15,8 @@
         }                                                                      \
     }
 
-#define THIS ((Subclass*)this)
-#define CONST_THIS ((const Subclass*)this)
+#define THIS reinterpret_cast<Subclass*>(this)
+#define CONST_THIS reinterpret_cast<const Subclass*>(this)
 
 #define PASS(...) __VA_ARGS__
 #define PASS_VA_ARGS(...) , ##__VA_ARGS__

@@ -117,7 +117,7 @@ class Config {
     std::vector<LoaderPlugin> GetDefaultLoaderPlugins() const { return {}; }
     std::vector<std::string> GetDefaultPatchPaths() const { return {}; }
     std::vector<std::string> GetDefaultInputProfiles() const {
-        return {"Default", "", "", "", "", "", "", "", ""};
+        return {"Default", "", "", "", "", "", "", "", "", ""};
     }
     CpuBackend GetDefaultCpuBackend() const {
 #if HYDRA_HYPERVISOR_ENABLED

@@ -679,4 +679,10 @@ if (CUBEB_ENABLED)
     target_link_libraries(hydra-core PRIVATE cubeb)
 endif ()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set_target_properties(hydra-core PROPERTIES
+        XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${IOS_DEPLOYMENT_TARGET}
+    )
+endif ()
+
 # TODO: link luft if AIR shader backend is enabled

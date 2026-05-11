@@ -5,6 +5,8 @@ include(FetchContent)
 
 project(hydra VERSION 0.4.1 LANGUAGES CXX)
 
+set(IOS_DEPLOYMENT_TARGET 17.4.0)
+
 if (CMAKE_OSX_ARCHITECTURES)
     set(TARGET_ARCHS "${CMAKE_OSX_ARCHITECTURES}")
 else ()
@@ -136,12 +138,13 @@ target_compile_options(hydra_warnings INTERFACE
     -Wold-style-cast
 
     # Extensions
+    -Wno-c99-extensions
     -Wno-gnu-anonymous-struct
     -Wno-nested-anon-types
     -Wno-zero-length-array
     -Wno-vla-extension
     -Wno-gnu-case-range
-    -Wno-c99-extensions
+    -Wno-gnu-zero-variadic-macro-arguments
 )
 
 include_directories(externals/metal-cpp externals/dynarmic externals/stb)
