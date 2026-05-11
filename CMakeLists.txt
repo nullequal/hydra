@@ -103,6 +103,7 @@ add_subdirectory(externals/dynarmic)
 
 # cubeb
 if (CUBEB_ENABLED)
+    set(BUILD_TESTS OFF)
     set(BUILD_TOOLS OFF)
     add_subdirectory(externals/cubeb)
 endif ()
