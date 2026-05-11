@@ -7,7 +7,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var globalState: GlobalState
 
-    @AppStorage("viewMode") private var viewMode: Int = ViewMode.list.rawValue
+    @AppStorage("viewMode") private var viewMode: ViewMode = .list
     @State private var fps: Int = 0
 
     #if os(iOS)
