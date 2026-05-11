@@ -66,9 +66,6 @@ inline uptr AllocateVmMemory(usize size) {
                     AllocateVmMemoryError::AllocationFailed,
                     "Failed to allocate memory: {:#x}", res);
 
-    // Clear the memory
-    memset(ptr, 0, size);
-
     return reinterpret_cast<uptr>(ptr);
 }
 
