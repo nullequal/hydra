@@ -8,7 +8,7 @@ enum ViewMode: Int {
 struct GameListView: View {
     @EnvironmentObject var globalState: GlobalState
 
-    @Binding var viewMode: Int
+    @Binding var viewMode: ViewMode
 
     @State private var games: [Game] = []
 
@@ -18,7 +18,7 @@ struct GameListView: View {
 
     var body: some View {
         VStack {
-            switch ViewMode(rawValue: viewMode) {
+            switch viewMode {
             case .list:
                 List {
                     ForEach(games.indices, id: \.self) { index in
@@ -39,8 +39,6 @@ struct GameListView: View {
                     .padding()
                     .frame(maxWidth: .infinity)
                 }
-            case .none:
-                Text("ERROR")
             }
         }
         .onAppear {
