@@ -1150,7 +1150,11 @@ struct HydraTextureStorage: HandleStruct {
 }
 
 // Texture descriptor
-extension HydraTextureType {
+extension HydraTextureType: Comparable {
+    public static func < (lhs: HydraTextureType, rhs: HydraTextureType) -> Bool {
+        return lhs.rawValue < rhs.rawValue
+    }
+
     var description: String {
         switch self {
         case HYDRA_TEXTURE_TYPE_1D:
@@ -1175,7 +1179,11 @@ extension HydraTextureType {
     }
 }
 
-extension HydraTextureFormat {
+extension HydraTextureFormat: Comparable {
+    public static func < (lhs: HydraTextureFormat, rhs: HydraTextureFormat) -> Bool {
+        return lhs.rawValue < rhs.rawValue
+    }
+
     var description: String {
         switch self {
         case HYDRA_TEXTURE_FORMAT_INVALID: return "Invalid"

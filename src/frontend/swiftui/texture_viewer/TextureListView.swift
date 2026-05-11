@@ -48,29 +48,33 @@ struct TextureListView: View {
 
     @State private var textures: [HydraTextureStorage] = []
 
+    @State private var sortOrder = [KeyPathComparator(\HydraTextureStorage.descriptor.format)]
+    private var sortedTextures: [HydraTextureStorage] {
+        return textures.sorted(using: sortOrder)
+    }
+
     var body: some View {
         ZStack {
-            // TODO: support sorting
-            Table(self.textures) {
-                TableColumn("Dimensions") { texture in
+            Table(self.sortedTextures, sortOrder: self.$sortOrder) {
+                TableColumn("Dimensions", value: \.descriptor.width) { texture in // TODO: use whole size as the value
                     Text("\(texture.descriptor.width) x \(texture.descriptor.height)\(texture.descriptor.depth == 1 ? "" : " x \(texture.descriptor.depth)")")
                 }
-                TableColumn("Type") { texture in
+                TableColumn("Type", value: \.descriptor.type) { texture in
                     Text(texture.descriptor.type.description)
                 }
-                TableColumn("Format") { texture in
+                TableColumn("Format", value: \.descriptor.format) { texture in
                     Text(texture.descriptor.format.description)
                 }
-                TableColumn("Levels") { texture in
+                TableColumn("Levels", value: \.descriptor.levelCount) { texture in
                     Text(String(texture.descriptor.levelCount))
                 }
-                TableColumn("Layers") { texture in
+                TableColumn("Layers", value: \.descriptor.layerCount) { texture in
                     Text(String(texture.descriptor.layerCount))
                 }
-                TableColumn("Layer Size") { texture in
+                TableColumn("Layer Size", value: \.descriptor.layerSize) { texture in
                     TextureSizeView(size: texture.descriptor.layerSize, sizeFormat: self.$sizeFormat)
                 }
-                TableColumn("Total Size") { texture in
+                TableColumn("Total Size", value: \.descriptor.size) { texture in
                     TextureSizeView(size: texture.descriptor.size, sizeFormat: self.$sizeFormat)
                 }
             }
