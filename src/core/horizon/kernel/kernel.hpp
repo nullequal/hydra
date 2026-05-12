@@ -135,6 +135,7 @@ class Kernel {
                             i64 timeout);
     result_t SignalToAddress(uptr addr, SignalType signal_type, u32 value,
                              u32 count);
+    void SynchronizePreemptionState(IThread* crnt_thread);
     result_t CreateSession(bool is_light, u64 name,
                            hipc::ServerSession*& out_server_session,
                            hipc::ClientSession*& out_client_session);

@@ -271,6 +271,9 @@ void Kernel::SupervisorCall(Process* crnt_process, IThread* crnt_thread,
             static_cast<SignalType>(state.r[1]), static_cast<u32>(state.r[2]),
             static_cast<u32>(state.r[3]));
         break;
+    case 0x36:
+        SynchronizePreemptionState(crnt_thread);
+        break;
     case 0x40: {
         hipc::ServerSession* server_session = nullptr;
         hipc::ClientSession* client_session = nullptr;
@@ -1211,6 +1214,12 @@ result_t Kernel::SignalToAddress(uptr addr, SignalType signal_type, u32 value,
     }
 
     return RESULT_SUCCESS;
+}
+
+void Kernel::SynchronizePreemptionState(IThread* crnt_thread) {
+    (void)crnt_thread;
+
+    LOG_FUNC_STUBBED(Kernel);
 }
 
 result_t Kernel::CreateSession(bool is_light, u64 name,
