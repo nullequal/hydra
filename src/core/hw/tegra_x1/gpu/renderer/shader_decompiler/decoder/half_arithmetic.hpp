@@ -13,13 +13,6 @@ enum class HalfOutputFormat {
     MrgH1 = 3,
 };
 
-enum class HalfSwizzle {
-    F16 = 0,
-    F32 = 1,
-    H0H0 = 2,
-    H1H1 = 3,
-};
-
 union InstHadd2Base {
     BitField64<reg_t, 0, 8> dst;
     BitField64<reg_t, 8, 8> src_a;

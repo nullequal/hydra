@@ -4,43 +4,6 @@ namespace hydra::hw::tegra_x1::gpu::renderer::shader_decomp::decoder {
 
 namespace {
 
-ir::Value GetFloatCmp(DecoderContext& context, FloatCmpOp op, ir::Value a,
-                      ir::Value b) {
-    // TODO: handle U versions differently?
-    switch (op) {
-    case FloatCmpOp::F:
-        return ir::Value::ConstantB(false);
-    case FloatCmpOp::T:
-        return ir::Value::ConstantB(true);
-    case FloatCmpOp::Lt:
-    case FloatCmpOp::Ltu:
-        return context.builder.OpCompareLess(a, b);
-    case FloatCmpOp::Le:
-    case FloatCmpOp::Leu:
-        return context.builder.OpCompareLessOrEqual(a, b);
-    case FloatCmpOp::Gt:
-    case FloatCmpOp::Gtu:
-        return context.builder.OpCompareGreater(a, b);
-    case FloatCmpOp::Ge:
-    case FloatCmpOp::Geu:
-        return context.builder.OpCompareGreaterOrEqual(a, b);
-    case FloatCmpOp::Eq:
-    case FloatCmpOp::Equ:
-        return context.builder.OpCompareEqual(a, b);
-    case FloatCmpOp::Ne:
-    case FloatCmpOp::Neu:
-        return context.builder.OpCompareNotEqual(a, b);
-    case FloatCmpOp::Num:
-    case FloatCmpOp::Nan: {
-        const auto res = context.builder.OpBitwiseOr(a, b);
-        if (op == FloatCmpOp::Num)
-            return context.builder.OpNot(res);
-        else
-            return res;
-    }
-    }
-}
-
 // TODO: write_cc, ftz
 void EmitFloatSet(DecoderContext& context, pred_t pred, bool pred_inv,
                   FloatCmpOp op, BoolOp b_op, reg_t dst, reg_t src_a,

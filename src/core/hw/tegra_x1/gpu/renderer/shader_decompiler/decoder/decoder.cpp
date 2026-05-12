@@ -8,6 +8,7 @@
 #include "core/hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/float_comparison.hpp"
 #include "core/hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/float_min_max.hpp"
 #include "core/hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/half_arithmetic.hpp"
+#include "core/hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/half_comparison.hpp"
 #include "core/hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/integer_arithmetic.hpp"
 #include "core/hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/integer_comparison.hpp"
 #include "core/hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/integer_logical.hpp"
@@ -380,12 +381,8 @@ void Decoder::ParseNextInstruction() {
     INST(0x8000000000000000, 0xe000000000000000) {
         COMMENT_NOT_IMPLEMENTED("ld");
     }
-    INST(0x7e80000000000000, 0xfe80000000000000) {
-        COMMENT_NOT_IMPLEMENTED("hsetp2"); // TODO: needed by Cuphead
-    }
-    INST(0x7e00000000000000, 0xfe80000000000000) {
-        COMMENT_NOT_IMPLEMENTED("hsetp2"); // TODO: needed by Cuphead
-    }
+    INST(0x7e80000000000000, 0xfe80000000000000) { EMIT(Hsetp2C); }
+    INST(0x7e00000000000000, 0xfe80000000000000) { EMIT(Hsetp2I); }
     INST(0x7c80000000000000, 0xfe80000000000000) {
         COMMENT_NOT_IMPLEMENTED("hset2");
     }
@@ -402,9 +399,7 @@ void Decoder::ParseNextInstruction() {
     INST(0x5f00000000000000, 0xff00000000000000) {
         COMMENT_NOT_IMPLEMENTED("vmad");
     }
-    INST(0x5d20000000000000, 0xfff8000000000000) {
-        COMMENT_NOT_IMPLEMENTED("hsetp2");
-    }
+    INST(0x5d20000000000000, 0xfff8000000000000) { EMIT(Hsetp2R); }
     INST(0x5d18000000000000, 0xfff8000000000000) {
         COMMENT_NOT_IMPLEMENTED("hset2");
     }

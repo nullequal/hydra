@@ -53,6 +53,32 @@ enum class RoundMode {
     Rz = 3,
 };
 
+enum class FloatCmpOp {
+    F = 0,
+    Lt = 1,
+    Eq = 2,
+    Le = 3,
+    Gt = 4,
+    Ne = 5,
+    Ge = 6,
+    Num = 7,
+    Nan = 8,
+    Ltu = 9,
+    Equ = 10,
+    Leu = 11,
+    Gtu = 12,
+    Neu = 13,
+    Geu = 14,
+    T = 15,
+};
+
+enum class HalfSwizzle {
+    F16 = 0,
+    F32 = 1,
+    H0H0 = 2,
+    H1H1 = 3,
+};
+
 inline u32 GetIntImm20(u32 imm20_0, u32 imm20_19, bool extend) {
     const auto imm20 = imm20_0 | (imm20_19 << 19);
     if (extend)
@@ -146,6 +172,74 @@ ir::Value EnsureIntegerSignedness(ir::Builder& builder,
     }
 
     return value;
+}
+
+inline ir::Value GetSwizzledHalf(ir::Builder& builder, HalfSwizzle swizzle,
+                                 reg_t src) {
+    if (swizzle == HalfSwizzle::F16)
+        return ir::Value::Register(src, ir::VectorType(ir::ScalarType::F16, 2));
+
+    ir::Value src_v = ir::Value::Undefined();
+    switch (swizzle) {
+    case HalfSwizzle::F32: {
+        src_v = builder.OpCast(ir::Value::Register(src, ir::ScalarType::F32),
+                               ir::ScalarType::F16);
+        break;
+    }
+    case HalfSwizzle::H0H0: {
+        src_v = ir::Value::Register(src, ir::ScalarType::F16);
+        break;
+    }
+    case HalfSwizzle::H1H1: {
+        src_v = builder.OpBitfieldExtract(ir::Value::Register(src),
+                                          ir::Value::ConstantU(16),
+                                          ir::Value::ConstantU(16));
+        src_v = builder.OpCast(src_v, ir::ScalarType::U16);
+        src_v = builder.OpBitCast(src_v, ir::ScalarType::F16);
+        break;
+    }
+    default:
+        unreachable();
+    }
+
+    return builder.OpVectorConstruct(ir::ScalarType::F16, {src_v, src_v});
+}
+
+inline ir::Value GetFloatCmp(DecoderContext& context, FloatCmpOp op,
+                             ir::Value a, ir::Value b) {
+    // TODO: handle U versions differently?
+    switch (op) {
+    case FloatCmpOp::F:
+        return ir::Value::ConstantB(false);
+    case FloatCmpOp::T:
+        return ir::Value::ConstantB(true);
+    case FloatCmpOp::Lt:
+    case FloatCmpOp::Ltu:
+        return context.builder.OpCompareLess(a, b);
+    case FloatCmpOp::Le:
+    case FloatCmpOp::Leu:
+        return context.builder.OpCompareLessOrEqual(a, b);
+    case FloatCmpOp::Gt:
+    case FloatCmpOp::Gtu:
+        return context.builder.OpCompareGreater(a, b);
+    case FloatCmpOp::Ge:
+    case FloatCmpOp::Geu:
+        return context.builder.OpCompareGreaterOrEqual(a, b);
+    case FloatCmpOp::Eq:
+    case FloatCmpOp::Equ:
+        return context.builder.OpCompareEqual(a, b);
+    case FloatCmpOp::Ne:
+    case FloatCmpOp::Neu:
+        return context.builder.OpCompareNotEqual(a, b);
+    case FloatCmpOp::Num:
+    case FloatCmpOp::Nan: {
+        const auto res = context.builder.OpBitwiseOr(a, b);
+        if (op == FloatCmpOp::Num)
+            return context.builder.OpNot(res);
+        else
+            return res;
+    }
+    }
 }
 
 } // namespace hydra::hw::tegra_x1::gpu::renderer::shader_decomp::decoder

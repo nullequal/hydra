@@ -517,6 +517,8 @@ add_library(hydra-core
     hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/comparison_helper.hpp
     hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/float_comparison.cpp
     hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/float_comparison.hpp
+    hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/half_comparison.cpp
+    hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/half_comparison.hpp
     hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/integer_comparison.cpp
     hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/integer_comparison.hpp
     hw/tegra_x1/gpu/renderer/shader_decompiler/decoder/predicate_comparison.cpp

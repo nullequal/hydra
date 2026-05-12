@@ -4,37 +4,6 @@ namespace hydra::hw::tegra_x1::gpu::renderer::shader_decomp::decoder {
 
 namespace {
 
-ir::Value GetSwizzledHalf(ir::Builder& builder, HalfSwizzle swizzle,
-                          reg_t src) {
-    if (swizzle == HalfSwizzle::F16)
-        return ir::Value::Register(src, ir::VectorType(ir::ScalarType::F16, 2));
-
-    ir::Value src_v = ir::Value::Undefined();
-    switch (swizzle) {
-    case HalfSwizzle::F32: {
-        src_v = builder.OpCast(ir::Value::Register(src, ir::ScalarType::F32),
-                               ir::ScalarType::F16);
-        break;
-    }
-    case HalfSwizzle::H0H0: {
-        src_v = ir::Value::Register(src, ir::ScalarType::F16);
-        break;
-    }
-    case HalfSwizzle::H1H1: {
-        src_v = builder.OpBitfieldExtract(ir::Value::Register(src),
-                                          ir::Value::ConstantU(16),
-                                          ir::Value::ConstantU(16));
-        src_v = builder.OpCast(src_v, ir::ScalarType::U16);
-        src_v = builder.OpBitCast(src_v, ir::ScalarType::F16);
-        break;
-    }
-    default:
-        unreachable();
-    }
-
-    return builder.OpVectorConstruct(ir::ScalarType::F16, {src_v, src_v});
-}
-
 void CopyHalfOutput(ir::Builder& builder, HalfOutputFormat format, reg_t dst,
                     ir::Value value) {
     switch (format) {

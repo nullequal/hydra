@@ -5,25 +5,6 @@
 
 namespace hydra::hw::tegra_x1::gpu::renderer::shader_decomp::decoder {
 
-enum class FloatCmpOp {
-    F = 0,
-    Lt = 1,
-    Eq = 2,
-    Le = 3,
-    Gt = 4,
-    Ne = 5,
-    Ge = 6,
-    Num = 7,
-    Nan = 8,
-    Ltu = 9,
-    Equ = 10,
-    Leu = 11,
-    Gtu = 12,
-    Neu = 13,
-    Geu = 14,
-    T = 15,
-};
-
 union InstFsetBase {
     BitField64<reg_t, 0, 8> dst;
     BitField64<reg_t, 8, 8> src_a;
