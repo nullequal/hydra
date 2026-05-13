@@ -693,7 +693,9 @@ if (CUBEB_ENABLED)
 endif ()
 
 if (SDL_ENABLED)
-    target_link_libraries(hydra-core PRIVATE sdl3)
+    find_package(SDL3 CONFIG REQUIRED)
+
+    target_link_libraries(hydra-core PRIVATE SDL3::SDL3)
 endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
