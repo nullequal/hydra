@@ -26,7 +26,10 @@ bool EventWatcher(void* userdata, SDL_Event* e) {
         delete it->second;
         SDL_CloseGamepad(gp);
         devices->erase(it);
+        break;
     }
+    default:
+        break;
     }
     return false;
 }
