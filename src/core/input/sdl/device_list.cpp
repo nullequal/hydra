@@ -39,15 +39,6 @@ DeviceList::DeviceList() {
 }
 
 DeviceList::~DeviceList() {
-    LOG_INFO(Input, "Keyboard disconnected: keyboard");
-    auto it = devices.find("keyboard");
-    delete it->second;
-    devices.erase(it);
-    for (auto [name, device] : devices) {
-        LOG_INFO(Input, "Controller disconnected: {}", name);
-        delete device;
-        devices.erase(name);
-    }
     SDL_RemoveEventWatch(EventWatcher, &devices);
 }
 
