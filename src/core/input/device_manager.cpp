@@ -1,6 +1,10 @@
 #include "core/input/device_manager.hpp"
 
+#ifdef PLATFORM_APPLE
 #include "core/input/apple_gc/device_list.hpp"
+#endif
+
+#include "core/input/sdl/device_list.hpp"
 
 namespace hydra::input {
 
@@ -16,7 +20,26 @@ DeviceManager::DeviceManager() {
     }
 
     // Device list
-    device_list = new apple_gc::DeviceList();
+    switch (CONFIG_INSTANCE.GetInputBackend()) {
+    case InputBackend::Sdl:
+#if HYDRA_SDL_ENABLED
+        device_list = new sdl::DeviceList();
+#else
+        LOG_FATAL(Other, "SDL not supported");
+#endif
+        break;
+    case InputBackend::GameController:
+#ifdef PLATFORM_APPLE
+        device_list = new apple_gc::DeviceList();
+#else
+        LOG_FATAL(Other, "GameController not supported");
+#endif
+        break;
+    default:
+        LOG_FATAL(Other, "Unknown input backend {}",
+                  CONFIG_INSTANCE.GetInputBackend());
+        break;
+    }
 }
 
 DeviceManager::~DeviceManager() { delete device_list; }

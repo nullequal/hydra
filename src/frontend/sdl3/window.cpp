@@ -7,7 +7,10 @@ namespace hydra::frontend::sdl3 {
 
 Window::Window(int argc, const char* argv[]) : emulation_context(*this) {
     // SLD3 initialization
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
+    u32 flags = CONFIG_INSTANCE.GetInputBackend() == InputBackend::Sdl
+                    ? SDL_INIT_VIDEO | SDL_INIT_GAMEPAD
+                    : SDL_INIT_VIDEO;
+    if (!SDL_Init(flags)) {
         LOG_FATAL(SDL3Window, "Failed to initialize SDL3: {}", SDL_GetError());
         return;
     }

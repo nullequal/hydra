@@ -12,6 +12,8 @@ TOML11_DEFINE_CONVERSION_ENUM(hydra::Resolution, Auto, "auto", _720p, "720p",
                               _1080p, "1080p", _1440p, "1440p", _2160p, "2160p",
                               _4320p, "4320p", AutoExact, "Auto exact", Custom,
                               "custom")
+TOML11_DEFINE_CONVERSION_ENUM(hydra::InputBackend, Sdl, "Sdl", GameController,
+                              "GameController")
 TOML11_DEFINE_CONVERSION_ENUM(hydra::AudioBackend, Null, "Null", Cubeb, "Cubeb")
 TOML11_DEFINE_CONVERSION_ENUM(hydra::LogOutput, None, "none", StdOut, "stdout",
                               File, "file")
@@ -126,6 +128,7 @@ void Config::LoadDefaults() {
     shader_backend = GetDefaultShaderBackend();
     display_resolution = GetDefaultDisplayResolution();
     custom_display_resolution = GetDefaultCustomDisplayResolution();
+    input_backend = GetDefaultInputBackend();
     audio_backend = GetDefaultAudioBackend();
     user_id = GetDefaultUserID();
     firmware_path = GetDefaultFirmwarePath();
@@ -174,6 +177,7 @@ void Config::Serialize() {
 
     {
         auto& input = data.at("Input");
+        input["backend"] = input_backend;
         input["profiles"] = input_profiles;
     }
 
@@ -253,6 +257,8 @@ void Config::Deserialize() {
     }
     if (data.contains("Input")) {
         const auto& input = data.at("Input");
+        input_backend = toml::find_or<InputBackend>(input, "backend",
+                                                    GetDefaultInputBackend());
         input_profiles = toml::find_or<std::vector<std::string>>(
             input, "profiles", GetDefaultInputProfiles());
     }
@@ -340,6 +346,12 @@ void Config::Deserialize() {
                  display_resolution);
     }
 
+    if (input_backend == InputBackend::Invalid) {
+        input_backend = GetDefaultInputBackend();
+        LOG_WARN(Other, "Invalid input backend, falling back to {}",
+                 input_backend);
+    }
+
     if (audio_backend == AudioBackend::Invalid) {
         audio_backend = GetDefaultAudioBackend();
         LOG_WARN(Other, "Invalid audio backend, falling back to {}",
@@ -358,6 +370,7 @@ void Config::Log() {
     LOG_INFO(Other, "Display resolution: {}", display_resolution);
     LOG_INFO(Other, "Custom display resolution: {}x{}",
              custom_display_resolution.x(), custom_display_resolution.y());
+    LOG_INFO(Other, "Input backend: {}", input_backend);
     LOG_INFO(Other, "Audio backend: {}", audio_backend);
     LOG_INFO(Other, "User ID: {:032x}", user_id);
     LOG_INFO(Other, "Firmware path: {}", firmware_path);
