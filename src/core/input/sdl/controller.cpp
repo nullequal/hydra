@@ -44,6 +44,16 @@ bool Controller::IsPressedImpl(ControllerInput input) {
     }
 }
 
+f32 positive_axis_to_float(i16 value) {
+     return std::max(static_cast<i16>(0), value) /
+               static_cast<f32>(std::numeric_limits<i16>::max());
+}
+
+f32 negative_axis_to_float(i16 value) {
+    return std::min(static_cast<i16>(0), value) /
+               static_cast<f32>(std::numeric_limits<i16>::min());
+}
+
 f32 Controller::GetAxisValueImpl(ControllerInput input) {
 #define AXIS_CASE(input, sdl_dpad, direction)                                  \
     case ControllerInput::input:                                               \
@@ -68,20 +78,15 @@ f32 Controller::GetAxisValueImpl(ControllerInput input) {
         return 0.0f;
     }
 
-    // TODO: make less ugly
     switch (dir) {
     case AnalogStickDirection::Right:
-        return std::max(static_cast<i16>(0), value) /
-               static_cast<f32>(std::numeric_limits<i16>::max());
+        return positive_axis_to_float(value);
     case AnalogStickDirection::Left:
-        return std::min(static_cast<i16>(0), value) /
-               static_cast<f32>(std::numeric_limits<i16>::min());
+        return negative_axis_to_float(value);
     case AnalogStickDirection::Up:
-        return std::min(static_cast<i16>(0), value) /
-               static_cast<f32>(std::numeric_limits<i16>::min());
+        return negative_axis_to_float(value);
     case AnalogStickDirection::Down:
-        return std::max(static_cast<i16>(0), value) /
-               static_cast<f32>(std::numeric_limits<i16>::max());
+        return positive_axis_to_float(value);
     }
 }
 
