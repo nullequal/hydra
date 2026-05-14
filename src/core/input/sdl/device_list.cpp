@@ -6,43 +6,62 @@
 
 namespace hydra::input::sdl {
 
-bool EventWatcher(void* userdata, SDL_Event* e) {
+void DeviceList::EventWatcher(SDL_Event* e) {
     switch (e->type) {
+    case SDL_EVENT_KEYBOARD_ADDED: {
+        if (kb_count == 0) {
+            LOG_INFO(Input, "Keyboard connected: Generic Keyboard");
+            devices.insert({"Generic Keyboard", new Keyboard()});
+            kb_count++;
+        } else {
+            kb_count++;
+        }
+        break;
+    }
+    case SDL_EVENT_KEYBOARD_REMOVED: {
+        if (kb_count == 1) {
+            LOG_INFO(Input, "Keyboard disconnected: Generic Keyboard");
+            auto it = devices.find("Generic Keyboard");
+            ASSERT(it != devices.end(), Input, "Keyboard not connected");
+            delete it->second;
+            devices.erase(it);
+            kb_count--;
+        } else {
+            kb_count--;
+        }
+        break;
+    }
     case SDL_EVENT_GAMEPAD_ADDED: {
         SDL_Gamepad* gp = SDL_OpenGamepad(e->gdevice.which);
         std::string name = SDL_GetGamepadName(gp);
         LOG_INFO(Input, "Controller connected: {}", name);
-        auto devices = static_cast<std::map<std::string, IDevice*>*>(userdata);
-        devices->insert({name, new Controller(gp)});
+        devices.insert({name, new Controller(gp)});
         break;
     }
     case SDL_EVENT_GAMEPAD_REMOVED: {
         SDL_Gamepad* gp = SDL_GetGamepadFromID(e->gdevice.which);
         std::string name = SDL_GetGamepadName(gp);
         LOG_INFO(Input, "Controller disconnected: {}", name);
-        auto devices = static_cast<std::map<std::string, IDevice*>*>(userdata);
-        auto it = devices->find(name);
-        ASSERT(it != devices->end(), Input, "Controller not connected");
+        auto it = devices.find(name);
+        ASSERT(it != devices.end(), Input, "Controller not connected");
         delete it->second;
         SDL_CloseGamepad(gp);
-        devices->erase(it);
+        devices.erase(it);
         break;
     }
     default:
         break;
     }
+}
+
+bool EWWrapper(void* userdata, SDL_Event* e) {
+    auto o = static_cast<DeviceList*>(userdata);
+    o->EventWatcher(e);
     return false;
 }
 
-DeviceList::DeviceList() {
-    // TODO: more than one keyboard
-    devices["keyboard"] = new Keyboard();
-    LOG_INFO(Input, "Keyboard connected: keyboard");
-    SDL_AddEventWatch(EventWatcher, &devices);
-}
+DeviceList::DeviceList() { SDL_AddEventWatch(EWWrapper, this); }
 
-DeviceList::~DeviceList() {
-    SDL_RemoveEventWatch(EventWatcher, &devices);
-}
+DeviceList::~DeviceList() { SDL_RemoveEventWatch(EWWrapper, this); }
 
 } // namespace hydra::input::sdl
