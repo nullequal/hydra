@@ -28,11 +28,11 @@ DeviceManager::DeviceManager() {
         LOG_FATAL(Other, "SDL not supported");
 #endif
         break;
-    case InputBackend::GameController:
+    case InputBackend::AppleGameController:
 #ifdef PLATFORM_APPLE
         device_list = new apple_gc::DeviceList();
 #else
-        LOG_FATAL(Other, "GameController not supported");
+        LOG_FATAL(Other, "Apple GameController not supported");
 #endif
         break;
     default:
