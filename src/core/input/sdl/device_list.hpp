@@ -13,7 +13,11 @@ class DeviceList : public IDeviceList {
     void EventWatcher(SDL_Event* e);
 
   private:
-    u32 kb_count;
+    u32 keyboard_count;
+
+    // Helpers
+    void ConnectGenericKeyboard();
+    void ConnectController(SDL_JoystickID id);
 };
 
 } // namespace hydra::input::sdl

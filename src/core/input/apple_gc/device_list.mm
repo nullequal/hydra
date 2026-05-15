@@ -7,6 +7,18 @@
 
 using DeviceList = hydra::input::apple_gc::DeviceList;
 
+namespace hydra::input::apple_gc {
+
+namespace {
+
+std::string GetDeviceName(id device) {
+    return [[device vendorName] UTF8String];
+}
+
+} // namespace
+
+} // namespace hydra::input::apple_gc
+
 @interface DeviceListImpl : NSObject
 
 @property DeviceList* parent;
@@ -52,71 +64,35 @@ using DeviceList = hydra::input::apple_gc::DeviceList;
 - (void)controllerConnected:(NSNotification*)notification {
     GCController* controller =
         reinterpret_cast<GCController*>(notification.object);
-    _parent->_AddController(controller);
+    _parent->AddDevice(hydra::input::apple_gc::GetDeviceName(controller),
+                       new hydra::input::apple_gc::Controller(controller));
 }
 
 - (void)controllerDisconnected:(NSNotification*)notification {
     GCController* controller =
         reinterpret_cast<GCController*>(notification.object);
-    _parent->_RemoveController(controller);
+    _parent->RemoveDevice(hydra::input::apple_gc::GetDeviceName(controller));
 }
 
 - (void)keyboardConnected:(NSNotification*)notification {
     GCKeyboard* keyboard = reinterpret_cast<GCKeyboard*>(notification.object);
-    _parent->_AddKeyboard(keyboard);
+    _parent->AddDevice(hydra::input::apple_gc::GetDeviceName(keyboard),
+                       new hydra::input::apple_gc::Keyboard(keyboard));
 }
 
 - (void)keyboardDisconnected:(NSNotification*)notification {
     GCKeyboard* keyboard = reinterpret_cast<GCKeyboard*>(notification.object);
-    _parent->_RemoveKeyboard(keyboard);
+    _parent->RemoveDevice(hydra::input::apple_gc::GetDeviceName(keyboard));
 }
 
 @end
 
 namespace hydra::input::apple_gc {
 
-namespace {
-
-std::string get_device_name(id device) {
-    return [[device vendorName] UTF8String];
-}
-
-} // namespace
-
 DeviceList::DeviceList() {
     impl = [[DeviceListImpl alloc] initWithParent:this];
 }
 
 DeviceList::~DeviceList() { [impl release]; }
-
-void DeviceList::_AddController(id controller) {
-    auto name = get_device_name(controller);
-    LOG_INFO(Input, "Controller connected: {}", name);
-    devices[name] = new Controller(controller);
-}
-
-void DeviceList::_RemoveController(id controller) {
-    auto name = get_device_name(controller);
-    LOG_INFO(Input, "Controller disconnected: {}", name);
-    auto it = devices.find(name);
-    ASSERT(it != devices.end(), Input, "Controller not connected");
-    delete it->second;
-    devices.erase(it);
-}
-
-void DeviceList::_AddKeyboard(id keyboard) {
-    auto name = get_device_name(keyboard);
-    LOG_INFO(Input, "Keyboard connected: {}", name);
-    devices[name] = new Keyboard(keyboard);
-}
-
-void DeviceList::_RemoveKeyboard(id keyboard) {
-    auto name = get_device_name(keyboard);
-    LOG_INFO(Input, "Keyboard disconnected: {}", name);
-    auto it = devices.find(name);
-    ASSERT(it != devices.end(), Input, "Keyboard not connected");
-    delete it->second;
-    devices.erase(it);
-}
 
 } // namespace hydra::input::apple_gc
