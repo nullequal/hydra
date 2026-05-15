@@ -6,53 +6,7 @@
 
 namespace hydra::input::sdl {
 
-void DeviceList::EventWatcher(SDL_Event* e) {
-    switch (e->type) {
-    case SDL_EVENT_KEYBOARD_ADDED: {
-        if (kb_count == 0) {
-            LOG_INFO(Input, "Keyboard connected: Generic Keyboard");
-            devices.insert({"Generic Keyboard", new Keyboard()});
-            kb_count++;
-        } else {
-            kb_count++;
-        }
-        break;
-    }
-    case SDL_EVENT_KEYBOARD_REMOVED: {
-        if (kb_count == 1) {
-            LOG_INFO(Input, "Keyboard disconnected: Generic Keyboard");
-            auto it = devices.find("Generic Keyboard");
-            ASSERT(it != devices.end(), Input, "Keyboard not connected");
-            delete it->second;
-            devices.erase(it);
-            kb_count--;
-        } else {
-            kb_count--;
-        }
-        break;
-    }
-    case SDL_EVENT_GAMEPAD_ADDED: {
-        SDL_Gamepad* gp = SDL_OpenGamepad(e->gdevice.which);
-        std::string name = SDL_GetGamepadName(gp);
-        LOG_INFO(Input, "Controller connected: {}", name);
-        devices.insert({name, new Controller(gp)});
-        break;
-    }
-    case SDL_EVENT_GAMEPAD_REMOVED: {
-        SDL_Gamepad* gp = SDL_GetGamepadFromID(e->gdevice.which);
-        std::string name = SDL_GetGamepadName(gp);
-        LOG_INFO(Input, "Controller disconnected: {}", name);
-        auto it = devices.find(name);
-        ASSERT(it != devices.end(), Input, "Controller not connected");
-        delete it->second;
-        SDL_CloseGamepad(gp);
-        devices.erase(it);
-        break;
-    }
-    default:
-        break;
-    }
-}
+namespace {
 
 bool EWWrapper(void* userdata, SDL_Event* e) {
     auto o = static_cast<DeviceList*>(userdata);
@@ -60,8 +14,40 @@ bool EWWrapper(void* userdata, SDL_Event* e) {
     return false;
 }
 
+} // namespace
+
 DeviceList::DeviceList() { SDL_AddEventWatch(EWWrapper, this); }
 
 DeviceList::~DeviceList() { SDL_RemoveEventWatch(EWWrapper, this); }
+
+void DeviceList::EventWatcher(SDL_Event* e) {
+    switch (e->type) {
+    case SDL_EVENT_KEYBOARD_ADDED: {
+        if (kb_count++ == 0)
+            AddDevice("Generic Keyboard", new Keyboard());
+        kb_count++;
+        break;
+    }
+    case SDL_EVENT_KEYBOARD_REMOVED: {
+        if (--kb_count == 0)
+            RemoveDevice("Generic Keyboard");
+        break;
+    }
+    case SDL_EVENT_GAMEPAD_ADDED: {
+        SDL_Gamepad* gp = SDL_OpenGamepad(e->gdevice.which);
+        std::string name = SDL_GetGamepadName(gp);
+        AddDevice(name, new Controller(gp));
+        break;
+    }
+    case SDL_EVENT_GAMEPAD_REMOVED: {
+        SDL_Gamepad* gp = SDL_GetGamepadFromID(e->gdevice.which);
+        std::string name = SDL_GetGamepadName(gp);
+        RemoveDevice(name);
+        break;
+    }
+    default:
+        break;
+    }
+}
 
 } // namespace hydra::input::sdl
