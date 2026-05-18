@@ -79,6 +79,7 @@ inline result_t* write_out_header(io::MemoryStream& stream) {
 inline void write_domain_out_header(io::MemoryStream& stream) {
     stream.Write<DomainOutHeader>({
         .num_out_objects = 0,
+        ._padding_x4 = {},
     });
 }
 

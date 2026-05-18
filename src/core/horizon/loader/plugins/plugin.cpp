@@ -129,6 +129,8 @@ Plugin::Plugin(const std::string& path) {
             .description = std::string_view(api_config.description),
             .type = api_config.type,
             .is_required = api_config.is_required,
+            .enum_value_names = {},
+            .path_content_types = {},
         };
 
         switch (api_config.type) {

@@ -73,13 +73,14 @@ result_t ITimeZoneService::ToCalendarTimeImpl(
     LOG_FUNC_WITH_ARGS_STUBBED(Services, "posix time: {}", posix_time);
 
     // Time
-    out_time = {
+    out_time = CalendarTime{
         .year = 0,   // TODO
         .month = 0,  // TODO
         .day = 0,    // TODO
         .hour = 0,   // TODO
         .minute = 0, // TODO
         .second = 0, // TODO
+        ._unknown = 0,
     };
 
     // Additional info

@@ -77,7 +77,7 @@ Config::Config() {
     } else {
         LOG_FATAL(Other, "Failed to find USERPROFILE path");
     }
-#elif defined(PLATFORM_LINUX)
+#elif defined(PLATFORM_LINUX) || defined(PLATFORM_FREEBSD)
     if (const char* xdg_config = std::getenv("XDG_CONFIG_HOME")) {
         app_data_path = fmt::format("{}/" APP_NAME, xdg_config);
         logs_path = fmt::format("{}/logs", app_data_path);

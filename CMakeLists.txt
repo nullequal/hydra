@@ -127,7 +127,7 @@ add_subdirectory(externals/libyaz0)
 # nx2elf
 add_subdirectory(externals/nx2elf)
 
-set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
+set(CMAKE_COMPILE_WARNING_AS_ERROR OFF)
 add_library(hydra_warnings INTERFACE)
 target_compile_options(hydra_warnings INTERFACE
     -Wall

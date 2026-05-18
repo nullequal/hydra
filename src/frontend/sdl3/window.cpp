@@ -2,6 +2,7 @@
 
 #include "core/horizon/loader/loader_base.hpp"
 #include "core/input/device_manager.hpp"
+#include <type_traits>
 
 namespace hydra::frontend::sdl3 {
 
@@ -117,11 +118,17 @@ Window::ShowSoftwareKeyboard(const std::string& header_text,
                              const std::string& sub_text,
                              const std::string& guide_text,
                              std::string& out_text) {
-    return native.ShowInputTextDialog(header_text, sub_text, guide_text,
-                                      out_text)
-               ? horizon::applets::software_keyboard::SoftwareKeyboardResult::OK
-               : horizon::applets::software_keyboard::SoftwareKeyboardResult::
-                     Cancel;
+    if constexpr (std::is_same_v<Native, std::monostate>) {
+        return horizon::applets::software_keyboard::SoftwareKeyboardResult::OK;
+    } else {
+#ifdef PLATFORM_APPLE
+        return native.ShowInputTextDialog(header_text, sub_text, guide_text, out_text)
+                ? horizon::applets::software_keyboard::SoftwareKeyboardResult::OK
+                : horizon::applets::software_keyboard::SoftwareKeyboardResult::Cancel;
+#else
+        return horizon::applets::software_keyboard::SoftwareKeyboardResult::OK;
+#endif
+    }
 }
 
 void Window::BeginEmulation(const std::string& path) {

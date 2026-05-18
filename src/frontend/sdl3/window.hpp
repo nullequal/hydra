@@ -4,9 +4,13 @@
 #include "core/system.hpp"
 #include "frontend/sdl3/cursor.hpp"
 
+#ifdef PLATFORM_APPLE
 // TODO: if macOS
 #include "frontend/native/cocoa/native.hpp"
 using Native = hydra::frontend::native::cocoa::Native;
+#else
+using Native = std::monostate;
+#endif
 
 namespace hydra::frontend::sdl3 {
 

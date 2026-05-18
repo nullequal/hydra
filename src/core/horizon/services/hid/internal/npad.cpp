@@ -140,6 +140,7 @@ void Npad::Update(const input::NpadState& new_state) {
     const auto analog_l = AnalogStickToInt(new_state.analog_l);
     const auto analog_r = AnalogStickToInt(new_state.analog_r);
     NpadCommonState new_state_entry{
+        .sampling_number = 0,
         .buttons = new_state.buttons,
         .analog_stick_l =
             {
@@ -152,6 +153,7 @@ void Npad::Update(const input::NpadState& new_state) {
                 .y = analog_r.y(),
             },
         .attributes = NpadAttributes::IsConnected,
+        .reserved = 0
     };
 
     // Attributes

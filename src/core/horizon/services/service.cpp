@@ -95,10 +95,17 @@ void IService::HandleRequest(System& system, kernel::Process* caller_process,
 
         kernel::hipc::Metadata meta{
             .type = static_cast<u32>(response_command_type),
+            .num_send_statics = 0,
+            .num_send_buffers = 0,
+            .num_recv_buffers = 0,
+            .num_exch_buffers = 0,
             .num_data_words =
                 GET_ARRAY_SIZE(out_stream) + GET_ARRAY_SIZE(out_objects_stream),
+            .num_recv_statics = 0,
+            .send_pid = 0,
             .num_copy_handles = GET_ARRAY_SIZE(out_copy_handles_stream),
-            .num_move_handles = GET_ARRAY_SIZE(out_move_handles_stream)};
+            .num_move_handles = GET_ARRAY_SIZE(out_move_handles_stream),
+        };
         auto response =
             kernel::hipc::make_request(reinterpret_cast<void*>(ptr), meta);
         if (!is_tipc)

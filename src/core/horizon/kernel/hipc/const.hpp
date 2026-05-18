@@ -252,6 +252,7 @@ inline Request make_request(void* base, Metadata meta) {
             .send_pid = meta.send_pid,
             .num_copy_handles = meta.num_copy_handles,
             .num_move_handles = meta.num_move_handles,
+            .padding = 0,
         };
         if (meta.send_pid)
             base = reinterpret_cast<u8*>(base) + sizeof(u64);

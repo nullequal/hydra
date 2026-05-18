@@ -66,6 +66,7 @@ std::span<u8> AppletState::PopLaunchParameter(const LaunchParameterKind kind) {
                     .magic = 0xc79497ca,
                     .unk_x4 = 1,
                     .user_id = user_id,
+                    .unk_x18 = {}
                 }),
                 sizeof(AccountHeader)};
     }

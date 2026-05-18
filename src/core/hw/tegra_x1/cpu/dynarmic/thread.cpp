@@ -1,6 +1,10 @@
 #include "core/hw/tegra_x1/cpu/dynarmic/thread.hpp"
 
+#ifdef PLATFORM_MACOS
 #include <mach/mach_time.h>
+#else
+
+#endif
 
 #include <dynarmic/interface/exclusive_monitor.h>
 

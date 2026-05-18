@@ -78,12 +78,23 @@ void AppletResource::UpdateTouch(
 
     // State
     TouchScreenState state{
+        .sampling_number = 0,
         .count = static_cast<i32>(new_state.size()),
+        .reserved = 0,
+        .touches = {},
     };
     u32 index = 0;
     for (const auto& [finger_id, touch_state] : new_state) {
-        state.touches[index++] = {
-            .finger_id = finger_id, .x = touch_state.x, .y = touch_state.y,
+        state.touches[index++] = TouchState{
+            .delta_time = 0,
+            .attributes = 0,
+            .finger_id = finger_id,
+            .x = touch_state.x,
+            .y = touch_state.y,
+            .diameter_x = 0,
+            .diameter_y = 0,
+            .rotation_angle = 0,
+            .reserved = 0
             // TODO: more
         };
     }

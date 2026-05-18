@@ -51,14 +51,14 @@ class IThread : public SynchronizationObject {
 
     // Messages
     void Stop() {
-        SendMessage({.type = ThreadMessageType::Stop, .supervisor = false});
+        SendMessage({.type = ThreadMessageType::Stop, .supervisor = false, .payload = {}});
     }
     // TODO: SupervisorStop?
     void Pause() {
-        SendMessage({.type = ThreadMessageType::Pause, .supervisor = false});
+        SendMessage({.type = ThreadMessageType::Pause, .supervisor = false, .payload = {}});
     }
     void SupervisorPause() {
-        SendMessage({.type = ThreadMessageType::Pause, .supervisor = true});
+        SendMessage({.type = ThreadMessageType::Pause, .supervisor = true, .payload = {}});
     }
     void Resume(SynchronizationObject* signalled_obj = nullptr) {
         SendMessage({.type = ThreadMessageType::Resume,
@@ -69,10 +69,10 @@ class IThread : public SynchronizationObject {
     void CancelSync() {
         SendMessage({.type = ThreadMessageType::Resume,
                      .supervisor = false,
-                     .payload = {.resume = {.signalled = false}}});
+                     .payload = {.resume = {.signalled = false, .signalled_obj = nullptr}}});
     }
     void SupervisorResume() {
-        SendMessage({.type = ThreadMessageType::Resume, .supervisor = true});
+        SendMessage({.type = ThreadMessageType::Resume, .supervisor = true, .payload = {}});
     }
 
     // Must not be called from a different thread

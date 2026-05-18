@@ -210,8 +210,12 @@ result_t IFileSystem::GetFileTimeStampRaw(
     }
 
     // HACK
-    *out_timestamp = {
+    *out_timestamp = TimeStampRaw{
+        .creation_time = 0,
+        .modification_time = 0,
+        .access_time = 0,
         .is_valid = true,
+        ._padding_x19 = {},
     };
     return RESULT_SUCCESS;
 }
