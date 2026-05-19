@@ -690,6 +690,9 @@ endif ()
 target_include_directories(hydra-core PRIVATE ${CMAKE_SOURCE_DIR}/externals/libyaz0/include)
 target_link_libraries(hydra-core PRIVATE hydra_warnings dynarmic hatch libyaz0 nx2elf hydra-common)
 
+if (WIN32)
+    target_link_libraries(hydra-core PRIVATE Ws2_32)
+endif ()
 
 if (APPLE)
     target_link_libraries(hydra-core PRIVATE hydra_warnings "-framework Foundation" "-framework Metal" "-framework QuartzCore" "-framework GameController")

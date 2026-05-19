@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "common/platform.hpp"
+
 namespace hydra {
 
 using i8 = int8_t;
@@ -27,6 +29,12 @@ using paddr_t = u64;
 using vaddr_t = u64;
 using gpu_vaddr_t = u64;
 using handle_id_t = u32;
+
+#ifdef PLATFORM_WINDOWS
+using thread_id_t = u32;
+#else
+using thread_id_t = u64;
+#endif
 
 constexpr handle_id_t INVALID_HANDLE_ID = 0;
 

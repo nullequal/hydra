@@ -16,7 +16,9 @@ Context::~Context() { SDL_Quit(); }
 
 Window::Window(int argc, const char* argv[]) : system(*this) {
     // Window and renderer
+#ifdef PLATFORM_APPLE
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "metal");
+#endif
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
 
     if (!SDL_CreateWindowAndRenderer(APP_NAME, 1280, 720, SDL_WINDOW_RESIZABLE,

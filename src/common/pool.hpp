@@ -13,33 +13,33 @@ class Pool {
     };
 
     handle_id_t AllocateHandle() {
-        return IndexToHandle(THIS->_AllocateIndex());
+        return IndexToHandle(HYDRA_THIS->_AllocateIndex());
     }
 
-    T& Allocate() { return THIS->_GetByIndex(THIS->_AllocateIndex()); }
+    T& Allocate() { return HYDRA_THIS->_GetByIndex(HYDRA_THIS->_AllocateIndex()); }
 
     handle_id_t Add(const T& object) {
-        const auto index = THIS->_AllocateIndex();
-        THIS->_GetByIndex(index) = object;
+        const auto index = HYDRA_THIS->_AllocateIndex();
+        HYDRA_THIS->_GetByIndex(index) = object;
         return IndexToHandle(index);
     }
 
     void Free(handle_id_t handle_id) {
-        THIS->_FreeByIndex(HandleToIndex(handle_id));
+        HYDRA_THIS->_FreeByIndex(HandleToIndex(handle_id));
     }
 
     bool IsValid(handle_id_t handle_id) const {
-        return CONST_THIS->_IsValidByIndex(HandleToIndex(handle_id));
+        return HYDRA_CONST_THIS->_IsValidByIndex(HandleToIndex(handle_id));
     }
 
     T& Get(handle_id_t handle_id) {
         AssertHandle(handle_id);
-        return THIS->_GetByIndex(HandleToIndex(handle_id));
+        return HYDRA_THIS->_GetByIndex(HandleToIndex(handle_id));
     }
 
     const T& Get(handle_id_t handle_id) const {
         AssertHandle(handle_id);
-        return CONST_THIS->_GetByIndex(HandleToIndex(handle_id));
+        return HYDRA_CONST_THIS->_GetByIndex(HandleToIndex(handle_id));
     }
 
   private:

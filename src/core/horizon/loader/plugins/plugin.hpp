@@ -1,6 +1,11 @@
 #pragma once
 
+#ifdef PLATFORM_WINDOWS
+#include <errhandlingapi.h>
+#include <libloaderapi.h>
+#else
 #include <dlfcn.h>
+#endif
 
 #include "core/horizon/loader/plugins/api.hpp"
 
@@ -17,6 +22,12 @@ class NxLoader;
 }
 
 namespace hydra::horizon::loader::plugins {
+
+#ifdef PLATFORM_WINDOWS
+using library_t = HMODULE;
+#else
+using library_t = void*;
+#endif
 
 struct OptionConfig {
     std::string_view name;
@@ -70,7 +81,7 @@ class Plugin {
     void StreamReadRaw(void* stream, std::span<u8> buffer);
 
   private:
-    void* library;
+    library_t library;
 
     // Functions
     api::GetApiVersionFnT get_api_version;
@@ -154,7 +165,11 @@ class Plugin {
             break;
         }
 
+#ifdef PLATFORM_WINDOWS
+        const auto func = GetProcAddress(library, symbol_name.data());
+#else
         const auto func = dlsym(library, symbol_name.data());
+#endif
         ASSERT_THROWING(func != nullptr, Loader,
                         GetFunctionError::SymbolNotFound,
                         "Failed to load symbol \"{}\"", symbol_name);

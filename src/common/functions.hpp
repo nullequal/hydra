@@ -5,7 +5,12 @@
 #include <cxxabi.h>
 #include <fstream>
 #include <string>
+
+#include "common/platform.hpp"
+
+#ifndef PLATFORM_WINDOWS
 #include <sys/mman.h>
+#endif
 
 #include "common/log.hpp"
 

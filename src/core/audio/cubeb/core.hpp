@@ -10,6 +10,9 @@ class Core final : public ICore {
 
   public:
     Core();
+#ifdef PLATFORM_WINDOWS
+    ~Core();
+#endif
 
     IStream* CreateStream(
         PcmFormat format, u32 sample_rate, u16 channel_count,

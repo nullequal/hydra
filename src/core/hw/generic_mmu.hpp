@@ -10,14 +10,14 @@ class GenericMmu {
   public:
     void Map(uptr base, Impl impl) {
         mapped_ranges[base] = impl;
-        THIS->MapImpl(base, impl);
+        HYDRA_THIS->MapImpl(base, impl);
     }
 
     void Unmap(uptr base) {
         auto it = mapped_ranges.find(base);
         ASSERT_DEBUG(it != mapped_ranges.end(), Mmu,
                      "Failed to unmap with base 0x{:08x}", base);
-        THIS->UnmapImpl(base, it->second);
+        HYDRA_THIS->UnmapImpl(base, it->second);
         mapped_ranges.erase(it);
     }
 
@@ -31,7 +31,7 @@ class GenericMmu {
 
     Impl* FindAddrImplRef(uptr addr, uptr& out_base) {
         for (auto& [base, impl] : mapped_ranges) {
-            if (addr >= base && addr < base + THIS->ImplGetSize(impl)) {
+            if (addr >= base && addr < base + HYDRA_THIS->ImplGetSize(impl)) {
                 out_base = base;
                 return &impl;
             }
@@ -51,12 +51,12 @@ class GenericMmu {
 
     template <typename T>
     T Load(uptr addr) const {
-        return *reinterpret_cast<T*>(CONST_THIS->UnmapAddr(addr));
+        return *reinterpret_cast<T*>(HYDRA_CONST_THIS->UnmapAddr(addr));
     }
 
     template <typename T>
     void Store(uptr addr, T value) const {
-        *reinterpret_cast<T*>(CONST_THIS->UnmapAddr(addr)) = value;
+        *reinterpret_cast<T*>(HYDRA_CONST_THIS->UnmapAddr(addr)) = value;
     }
 
   private:

@@ -15,14 +15,14 @@
         }                                                                      \
     }
 
-#define THIS reinterpret_cast<Subclass*>(this)
-#define CONST_THIS reinterpret_cast<const Subclass*>(this)
+#define HYDRA_THIS reinterpret_cast<Subclass*>(this)
+#define HYDRA_CONST_THIS reinterpret_cast<const Subclass*>(this)
 
 #define PASS(...) __VA_ARGS__
 #define PASS_VA_ARGS(...) , ##__VA_ARGS__
 
 #define BIT(n) (1u << (n))
-#define BITL(n) (1ul << (n))
+#define BITL(n) (1ull << (n))
 
 #define UNDERLYING(t) std::underlying_type_t<t>
 

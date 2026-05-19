@@ -316,22 +316,22 @@ class CacheBase {
   public:
     ~CacheBase() {
         for (auto& [key, value] : cache) {
-            THIS->DestroyElement(value);
+            HYDRA_THIS->DestroyElement(value);
         }
 
-        THIS->Destroy();
+        HYDRA_THIS->Destroy();
     }
 
     T& Find(const DescriptorT& descriptor) {
-        u32 hash = THIS->Hash(descriptor);
+        u32 hash = HYDRA_THIS->Hash(descriptor);
         auto it = cache.find(hash);
         if (it == cache.end()) {
-            it = cache.insert({hash, THIS->Create(descriptor)}).first;
+            it = cache.insert({hash, HYDRA_THIS->Create(descriptor)}).first;
 
             return it->second;
         }
 
-        THIS->Update(it->second);
+        HYDRA_THIS->Update(it->second);
 
         return it->second;
     }

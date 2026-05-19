@@ -2,6 +2,10 @@
 
 #include "core/debugger/const.hpp"
 
+#ifdef PLATFORM_WINDOWS
+#include <ws2tcpip.h>
+#endif
+
 namespace hydra {
 class System;
 }
@@ -11,6 +15,14 @@ class GuestThread;
 } // namespace hydra::horizon::kernel
 
 namespace hydra::debugger {
+
+#ifdef PLATFORM_WINDOWS
+using socket_t = u64;
+constexpr socket_t INVALID_SOCK = INVALID_SOCKET;
+#else
+using socket_t = i32;
+constexpr socket_t INVALID_SOCK = -1;
+#endif
 
 class Thread;
 class Debugger;
@@ -32,8 +44,8 @@ class GdbServer {
 
     std::mutex mutex;
 
-    i32 server_socket;
-    i32 client_socket{-1};
+    socket_t server_socket;
+    socket_t client_socket{INVALID_SOCK};
     std::thread server_thread;
     std::atomic<bool> running{true};
     std::string receive_buffer;
@@ -70,7 +82,7 @@ class GdbServer {
     void HandleGetExecutables();
 
     // Helpers
-    void SetNonBlocking(i32 socket);
+    void SetNonBlocking(socket_t socket);
     std::string ReadReg(u32 id);
     std::string GetThreadStatus(horizon::kernel::GuestThread* thread,
                                 Signal signal);

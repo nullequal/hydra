@@ -1,11 +1,21 @@
 #include "core/debugger/gdb_server.hpp"
 
+#ifdef PLATFORM_WINDOWS
+#include <winsock2.h>
+#include <ws2def.h>
+#include <ws2tcpip.h>
+#undef interface
+#undef uuid_t
+#undef SendMessage
+#else
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #ifdef PLATFORM_FREEBSD
 #include <fcntl.h>
 #include <sys/stat.h>
+#endif
+
 #endif
 
 #pragma GCC diagnostic push
@@ -84,6 +94,15 @@ T hex_to_number(std::string_view hex) {
 
     return value;
 }
+
+bool is_fatal(socket_t value) {
+    return value == INVALID_SOCK
+#ifdef PLATFORM_WINDOWS
+           && WSAGetLastError() != WSAEWOULDBLOCK
+#endif
+        ;
+}
+
 
 std::string_view get_target_xml_aarch64() {
     return R"(<?xml version="1.0"?>
@@ -239,7 +258,7 @@ GdbServer::GdbServer(System& system_, Debugger& debugger_)
 
     // Create the socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_socket == -1) {
+    if (server_socket == INVALID_SOCK) {
         LOG_ERROR(Debugger, "Failed to create GDB socket");
         return;
     }
@@ -255,17 +274,24 @@ GdbServer::GdbServer(System& system_, Debugger& debugger_)
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if (bind(server_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) ==
-        -1) {
+    if (bind(server_socket, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == -1) {
         LOG_ERROR(Debugger, "Failed to bind GDB socket");
+#ifdef PLATFORM_WINDOWS
+        closesocket(server_socket);
+#else
         close(server_socket);
+#endif
         return;
     }
 
     // Start listening
     if (listen(server_socket, 1) == -1) {
         LOG_ERROR(Debugger, "Failed to listen on GDB socket");
+#ifdef PLATFORM_WINDOWS
+        closesocket(server_socket);
+#else
         close(server_socket);
+#endif
         return;
     }
 
@@ -285,7 +311,11 @@ GdbServer::GdbServer(System& system_, Debugger& debugger_)
 GdbServer::~GdbServer() {
     running = false;
     server_thread.join();
+#ifdef PLATFORM_WINDOWS
+    closesocket(server_socket);
+#else
     close(server_socket);
+#endif
 }
 
 void GdbServer::NotifySupervisorPaused(horizon::kernel::GuestThread* thread,
@@ -318,9 +348,13 @@ void GdbServer::BreakpointHit(horizon::kernel::GuestThread* thread) {
 }
 
 void GdbServer::CloseClientSocket() {
-    ASSERT(client_socket != -1, Debugger, "Client socket is not open");
+    ASSERT(!is_fatal(client_socket), Debugger, "Client socket is not open");
+#ifdef PLATFORM_WINDOWS
+    closesocket(client_socket);
+#else
     close(client_socket);
-    client_socket = -1;
+#endif
+    client_socket = INVALID_SOCK;
     LOG_INFO(Debugger, "GDB client disconnected");
 }
 
@@ -335,14 +369,14 @@ void GdbServer::ServerLoop() {
 }
 
 void GdbServer::Poll() {
-    if (client_socket == -1) {
+    if (client_socket == INVALID_SOCK) {
         sockaddr_in client_addr{};
         socklen_t addr_len = sizeof(client_addr);
-        i32 new_client =
+        socket_t new_client =
             accept(server_socket, reinterpret_cast<sockaddr*>(&client_addr),
                    &addr_len);
 
-        if (new_client != -1) {
+        if (!is_fatal(new_client)) {
             client_socket = new_client;
             SetNonBlocking(client_socket);
             debugger.process->SupervisorPause();
@@ -728,7 +762,7 @@ void GdbServer::HandleGetExecutables() {
 }
 
 void GdbServer::SendPacket(std::string_view data) {
-    ASSERT_DEBUG(client_socket != -1, Debugger, "Client socket is not valid");
+    ASSERT_DEBUG(!is_fatal(client_socket), Debugger, "Client socket is not valid");
 
     u8 checksum = 0;
     for (char c : data)
@@ -737,20 +771,29 @@ void GdbServer::SendPacket(std::string_view data) {
     std::string packet = fmt::format("${}#{:02x}", data, checksum);
     // TODO: debug
     LOG_INFO(Debugger, "SENDING: {}", packet);
+#ifdef PLATFORM_WINDOWS
+    send(client_socket, packet.data(), static_cast<int>(packet.size()), 0);
+#else
     send(client_socket, packet.data(), packet.size(), 0);
+#endif
 }
 
 void GdbServer::SendStatus(char status) {
     if (!do_ack)
         return;
 
-    ASSERT_DEBUG(client_socket != -1, Debugger, "Client socket is not valid");
+    ASSERT_DEBUG(!is_fatal(client_socket), Debugger, "Client socket is not valid");
     send(client_socket, &status, 1, 0);
 }
 
-void GdbServer::SetNonBlocking(i32 socket) {
+void GdbServer::SetNonBlocking(socket_t socket) {
+#ifdef PLATFORM_WINDOWS
+    unsigned long mode = 1;
+    ioctlsocket(socket, static_cast<long>(FIONBIO), &mode);
+#else
     i32 flags = fcntl(socket, F_GETFL, 0);
     fcntl(socket, F_SETFL, flags | O_NONBLOCK);
+#endif
 }
 
 std::string GdbServer::ReadReg(u32 id) {

@@ -11,7 +11,7 @@
     auto it = threads.find(thread_id);                                         \
     ASSERT_DEBUG(it != threads.end(), Debugger,                                \
                  "Thread {:016x} not registered",                              \
-                 std::bit_cast<u64>(thread_id));                               \
+                 std::bit_cast<thread_id_t>(thread_id));                               \
     [[maybe_unused]] auto& thread = it->second;
 
 namespace hydra::debugger {
