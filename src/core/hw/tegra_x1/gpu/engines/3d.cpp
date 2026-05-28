@@ -280,15 +280,22 @@ void ThreeD::LoadMmeStartAddressRam(const u32 index, const u32 data) {
 }
 
 void ThreeD::DrawVertexArray(const u32 index, u32 count) {
-    if (!DrawInternal())
-        return;
-
     auto index_type = IndexType::None;
     auto primitive_type = regs.begin.primitive_type;
-    const auto index_buffer = gpu.GetRenderer().GetIndexCache().Decode(
-        tls_crnt_command_buffer,
-        {.type = index_type, .primitive_type = primitive_type, .count = count},
-        index_type, primitive_type, count);
+    renderer::BufferView index_buffer;
+    {
+        std::lock_guard buffer_cache_lock(
+            gpu.GetRenderer().GetBufferCache().GetMutex());
+        if (!DrawInternal())
+            return;
+
+        index_buffer = gpu.GetRenderer().GetIndexCache().Decode(
+            tls_crnt_command_buffer,
+            {.type = index_type,
+             .primitive_type = primitive_type,
+             .count = count},
+            index_type, primitive_type, count);
+    }
 
     if (index_buffer.GetBase()) {
         // Bind index buffer
@@ -312,29 +319,35 @@ void ThreeD::DrawVertexArray(const u32 index, u32 count) {
 }
 
 void ThreeD::DrawVertexElements(const u32 index, u32 count) {
-    if (!DrawInternal())
-        return;
-
-    // Index buffer
-    gpu_vaddr_t index_buffer_ptr =
-        tls_crnt_gmmu->UnmapAddr(regs.index_buffer_addr);
-    // TODO: uncomment?
-    u32 index_buffer_size =
-        count * get_index_type_size(
-                    regs.index_type); // u64(regs.index_buffer_limit_addr) + 1
-                                      // - u64(regs.index_buffer_addr);
-    const auto range =
-        Range<uptr>::FromSize(index_buffer_ptr, index_buffer_size);
-
     auto index_type = regs.index_type;
     auto primitive_type = regs.begin.primitive_type;
-    const auto index_buffer = gpu.GetRenderer().GetIndexCache().Decode(
-        tls_crnt_command_buffer,
-        {.type = index_type,
-         .primitive_type = primitive_type,
-         .count = count,
-         .mem_range = range},
-        index_type, primitive_type, count);
+    renderer::BufferView index_buffer;
+    {
+        std::lock_guard buffer_cache_lock(
+            gpu.GetRenderer().GetBufferCache().GetMutex());
+        if (!DrawInternal())
+            return;
+
+        // Index buffer
+        gpu_vaddr_t index_buffer_ptr =
+            tls_crnt_gmmu->UnmapAddr(regs.index_buffer_addr);
+        // TODO: uncomment?
+        u32 index_buffer_size =
+            count *
+            get_index_type_size(
+                regs.index_type); // u64(regs.index_buffer_limit_addr) + 1
+                                  // - u64(regs.index_buffer_addr);
+        const auto range =
+            Range<uptr>::FromSize(index_buffer_ptr, index_buffer_size);
+
+        index_buffer = gpu.GetRenderer().GetIndexCache().Decode(
+            tls_crnt_command_buffer,
+            {.type = index_type,
+             .primitive_type = primitive_type,
+             .count = count,
+             .mem_range = range},
+            index_type, primitive_type, count);
+    }
 
     // Bind index buffer
     ASSERT_DEBUG(index_buffer.GetBase(), Gpu, "Index buffer not found");
@@ -404,7 +417,9 @@ void ThreeD::LoadConstBuffer(const u32 index, const u32 data) {
 
     // Invalidate
     // TODO: invalidate as a whole
-    gpu.GetRenderer().InvalidateMemory(Range<uptr>::FromSize(ptr, sizeof(u32)));
+    gpu.GetRenderer().InvalidateMemory(
+        Range<uptr>::FromSize(ptr, sizeof(u32)),
+        renderer::MemoryInvalidationScope::BufferCache);
 }
 
 void ThreeD::BindGroup(const u32 index, const u32 data) {
@@ -481,12 +496,13 @@ ThreeD::GetColorTargetTexture(u32 render_target_index) const {
         stride = 0;
     }
 
-    const auto descriptor = renderer::TextureDescriptor::CreateWithLayerSize(
+    const renderer::TextureDescriptor descriptor(
         tls_crnt_gmmu->UnmapAddr(gpu_addr), type, format, is_linear, stride,
-        width, render_target.height, depth, layer_count,
-        render_target.tile_mode.width, render_target.tile_mode.height,
-        render_target.tile_mode.depth,
-        !is_linear ? render_target.layer_stride * 4 : 0);
+        width, render_target.height, depth, 1, layer_count,
+        render_target.tile_mode.width_gobs_log2,
+        render_target.tile_mode.height_gobs_log2,
+        render_target.tile_mode.depth_gobs_log2,
+        render_target.layer_stride * 4);
 
     return gpu.GetRenderer().GetTextureCache().Find(
         tls_crnt_command_buffer, descriptor, renderer::TextureUsage::Write);
@@ -504,12 +520,14 @@ renderer::ITextureView* ThreeD::GetDepthStencilTargetTexture() const {
                           ? renderer::TextureType::_2DArray
                           : renderer::TextureType::_2D;
 
-    const auto descriptor = renderer::TextureDescriptor::CreateWithLayerSize(
+    const renderer::TextureDescriptor descriptor(
         tls_crnt_gmmu->UnmapAddr(gpu_addr), type,
         renderer::to_texture_format(regs.depth_target_format), false, 0,
-        regs.depth_target_width, regs.depth_target_height, 1,
-        regs.depth_target_array_mode.layers, regs.depth_target_tile_mode.width,
-        regs.depth_target_tile_mode.height, regs.depth_target_tile_mode.depth,
+        regs.depth_target_width, regs.depth_target_height, 1, 1,
+        regs.depth_target_array_mode.layers,
+        regs.depth_target_tile_mode.width_gobs_log2,
+        regs.depth_target_tile_mode.height_gobs_log2,
+        regs.depth_target_tile_mode.depth_gobs_log2,
         regs.depth_target_layer_stride * 4);
 
     return gpu.GetRenderer().GetTextureCache().Find(
@@ -805,10 +823,10 @@ ThreeD::GetTexture(const TextureImageControl& tic) const {
     }
 
     const u32 level_count = tic.mip_max_levels + 1;
-    const auto descriptor = renderer::TextureDescriptor::CreateWithLevelCount(
+    const renderer::TextureDescriptor descriptor(
         tls_crnt_gmmu->UnmapAddr(gpu_addr), type, format, is_linear,
         linear_stride, tic.width_minus_one + 1, tic.height_minus_one + 1, depth,
-        level_count, layer_count, tic.tile_width_gobs_log2,
+        level_count, layer_count, tic.sparse_tile_width_gobs_log2,
         tic.tile_height_gobs_log2, tic.tile_depth_gobs_log2);
     const renderer::TextureViewDescriptor view_descriptor(
         type, format, Range<u32>(0, level_count), Range<u32>(0, layer_count),

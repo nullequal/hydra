@@ -190,7 +190,8 @@ void System::LoadAndStart(horizon::loader::LoaderBase* loader) {
             new horizon::applets::error::ParamForApplicationError{
                 .version = 1,
                 .error_code_number = MAKE_RESULT(Svc, 0),
-                .language_code = horizon::LanguageCode::AmericanEnglish,
+                .language_code = horizon::ToLanguageCode(
+                    CONFIG_INSTANCE.GetSystemLanguage()),
                 .dialog_message = "Dialog message",
                 .fullscreen_message = "Fullscreen message",
             };
@@ -267,11 +268,10 @@ void System::LoadAndStart(horizon::loader::LoaderBase* loader) {
             // Create texture
             const u32 stride = width * 4;
             const u32 size = height * stride;
-            const auto descriptor = hw::tegra_x1::gpu::renderer::
-                TextureDescriptor::CreateWithLevelCount(
-                    0x0, hw::tegra_x1::gpu::renderer::TextureType::_2D,
-                    hw::tegra_x1::gpu::renderer::TextureFormat::RGBA8Unorm,
-                    true, stride, width, height, 1, 1, 1, 0x0, 0x0, 0x0);
+            const hw::tegra_x1::gpu::renderer::TextureDescriptor descriptor(
+                0x0, hw::tegra_x1::gpu::renderer::TextureType::_2D,
+                hw::tegra_x1::gpu::renderer::TextureFormat::RGBA8Unorm, true,
+                stride, width, height, 1, 1, 1, 0x0, 0x0, 0x0);
             const auto texture = gpu.GetRenderer().CreateTexture(descriptor);
 
             const auto view_descriptor =
@@ -300,11 +300,10 @@ void System::LoadAndStart(horizon::loader::LoaderBase* loader) {
                                                  height, frame_count)) {
             const u32 stride = width * 4;
             const u32 size = height * stride;
-            const auto descriptor = hw::tegra_x1::gpu::renderer::
-                TextureDescriptor::CreateWithLevelCount(
-                    0x0, hw::tegra_x1::gpu::renderer::TextureType::_2D,
-                    hw::tegra_x1::gpu::renderer::TextureFormat::RGBA8Unorm,
-                    true, stride, width, height, 1, 1, 1, 0x0, 0x0, 0x0);
+            hw::tegra_x1::gpu::renderer::TextureDescriptor descriptor(
+                0x0, hw::tegra_x1::gpu::renderer::TextureType::_2D,
+                hw::tegra_x1::gpu::renderer::TextureFormat::RGBA8Unorm, true,
+                stride, width, height, 1, 1, 1, 0x0, 0x0, 0x0);
             const auto view_descriptor =
                 hw::tegra_x1::gpu::renderer::TextureViewDescriptor(
                     descriptor.type, descriptor.format, Range<u32>(0, 1),

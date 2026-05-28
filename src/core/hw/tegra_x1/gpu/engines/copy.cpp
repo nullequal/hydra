@@ -44,72 +44,60 @@ void Copy::LaunchDMA(const u32 index, const LaunchDMAData data) {
                 memcpy(reinterpret_cast<void*>(dst_ptr + regs.stride_out * i),
                        reinterpret_cast<void*>(src_ptr + regs.stride_in * i),
                        regs.stride_in);
-
-            // Invalidate
-            gpu.GetRenderer().GetBufferCache().InvalidateMemory(
-                Range<uptr>::FromSize(dst_ptr,
-                                      regs.line_count * regs.stride_out));
         } else {
+            // TODO: is slice stride correct?
+            // TODO: can this copy to multiple slices at once?
+            // TODO: origin, line size
             // TODO: block size log2 can also be negative?
-            ConvertLinearToBlockLinear(dst_stride, regs.line_count,
-                                       static_cast<u32>(get_block_size_log2(
-                                           regs.dst.block_size.height)),
-                                       reinterpret_cast<u8*>(src_ptr),
-                                       reinterpret_cast<u8*>(dst_ptr));
+            ConvertLinearToBlockLinear(
+                regs.stride_in, regs.line_count * regs.stride_in, dst_stride,
+                regs.dst.height, regs.dst.depth,
+                static_cast<u32>(
+                    get_block_size_log2(regs.dst.block_size.height)),
+                static_cast<u32>(
+                    get_block_size_log2(regs.dst.block_size.depth)),
+                reinterpret_cast<u8*>(src_ptr), reinterpret_cast<u8*>(dst_ptr));
         }
     } else {
         if (data.dst_memory_layout == MemoryLayout::Pitch) {
+            // TODO: is slice stride correct?
+            // TODO: can this copy from multiple slices at once?
+            // TODO: origin, line size
             // TODO: block size log2 can also be negative?
-            ConvertBlockLinearToLinear(src_stride, regs.line_count,
-                                       static_cast<u32>(get_block_size_log2(
-                                           regs.src.block_size.height)),
-                                       reinterpret_cast<u8*>(src_ptr),
-                                       reinterpret_cast<u8*>(dst_ptr));
+            ConvertBlockLinearToLinear(
+                src_stride, regs.stride_out, regs.line_count * regs.stride_out,
+                regs.src.height, regs.src.depth,
+                static_cast<u32>(
+                    get_block_size_log2(regs.src.block_size.height)),
+                static_cast<u32>(
+                    get_block_size_log2(regs.src.block_size.depth)),
+                reinterpret_cast<u8*>(src_ptr), reinterpret_cast<u8*>(dst_ptr));
         } else {
             LOG_NOT_IMPLEMENTED(Engines, "BlockLinear to BlockLinear");
         }
     }
 
-    // Invalidate
-    gpu.GetRenderer().GetTextureCache().InvalidateMemory(
-        Range<uptr>(dst_ptr, regs.stride_in * regs.line_count));
+    // Invalidate memory
+    if (data.dst_memory_layout == MemoryLayout::Pitch) {
+        gpu.GetRenderer().InvalidateMemory(
+            Range<uptr>::FromSize(dst_ptr, regs.line_count * regs.stride_out),
+            renderer::MemoryInvalidationScope::BufferCache |
+                renderer::MemoryInvalidationScope::TextureCache);
+    } else {
+        const u32 stride = align(dst_stride, GOB_WIDTH);
+        const u32 rows =
+            align(regs.dst.height,
+                  GOB_HEIGHT << static_cast<u32>(
+                      get_block_size_log2(regs.dst.block_size.height)));
+        const u32 slices =
+            align(regs.dst.depth, 1u << static_cast<u32>(get_block_size_log2(
+                                      regs.dst.block_size.depth)));
+        gpu.GetRenderer().InvalidateMemory(
+            Range<uptr>::FromSize(dst_ptr, slices * rows * stride),
+            renderer::MemoryInvalidationScope::TextureCache);
+    }
 }
 
 #pragma GCC diagnostic pop
-
-/*
-renderer::BufferBase* Copy::GetBuffer(const Iova addr, const usize
-size) { const renderer::BufferDescriptor descriptor{ .ptr =
-gmmu.UnmapAddr(addr), .size = size,
-    };
-
-    return RENDERER_INSTANCE.GetBufferCache().Find(descriptor);
-}
-*/
-
-/*
-renderer::TextureBase* Copy::GetTexture(const u32 gpu_addr_lo,
-                                        const u32 gpu_addr_hi,
-                                        const TextureCopyInfo& info) {
-    const auto gpu_addr = make_addr(gpu_addr_lo, gpu_addr_hi);
-
-    i32 block_size_log2 = get_block_size_log2(info.block_size.height);
-    LOG_DEBUG(Engines, "Block size: {}", 1 << block_size_log2);
-
-    const renderer::TextureDescriptor descriptor{
-        .ptr = Gpu::GetInstance().GetGpuMmu().UnmapAddr(gpu_addr),
-        .format =
-            renderer::TextureFormat::RGBA8Unorm, // TODO: choose based on bpp
-        .kind = NvKind::Pitch,                   // TODO: correct?
-        .width = info.stride,                    // HACK
-        .height = info.height,                   // HACK
-        .block_height_log2 = 0,                  // TODO
-        .stride = info.stride,
-    };
-    LOG_DEBUG(Engines, "COPYING: {}x{}", descriptor.width, descriptor.height);
-
-    return RENDERER_INSTANCE.GetTextureCache().GetTextureView(descriptor);
-}
-*/
 
 } // namespace hydra::hw::tegra_x1::gpu::engines

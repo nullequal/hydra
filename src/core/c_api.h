@@ -32,35 +32,25 @@ typedef struct {
 
 // Enums
 typedef enum : uint32_t {
-    HYDRA_INPUT_BACKEND_INVALID = 0,
-
     HYDRA_INPUT_BACKEND_APPLE_GAME_CONTROLLER,
     HYDRA_INPUT_BACKEND_SDL,
 } HydraInputBackend;
 
 typedef enum : uint32_t {
-    HYDRA_CPU_BACKEND_INVALID = 0,
-
     HYDRA_CPU_BACKEND_APPLE_HYPERVISOR,
     HYDRA_CPU_BACKEND_DYNARMIC,
 } HydraCpuBackend;
 
 typedef enum : uint32_t {
-    HYDRA_GPU_RENDERER_INVALID = 0,
-
     HYDRA_GPU_RENDERER_METAL,
 } HydraGpuRenderer;
 
 typedef enum : uint32_t {
-    HYDRA_SHADER_BACKEND_INVALID = 0,
-
     HYDRA_SHADER_BACKEND_MSL,
     HYDRA_SHADER_BACKEND_AIR,
 } HydraShaderBackend;
 
 typedef enum : uint32_t {
-    HYDRA_RESOLUTION_INVALID = 0,
-
     HYDRA_RESOLUTION_AUTO,
     HYDRA_RESOLUTION_720P,
     HYDRA_RESOLUTION_1080P,
@@ -72,24 +62,32 @@ typedef enum : uint32_t {
 } HydraResolution;
 
 typedef enum : uint32_t {
-    HYDRA_AUDIO_BACKEND_INVALID = 0,
-
     HYDRA_AUDIO_BACKEND_NULL,
     HYDRA_AUDIO_BACKEND_CUBEB,
 } HydraAudioBackend;
 
 typedef enum : uint32_t {
-    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_PROGRAM = 0,
-    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_META = 1,
-    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_CONTROL = 2,
-    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_MANUAL = 3,
-    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_DATA = 4,
-    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_PUBLIC_DATA = 5,
-} HydraContentArchiveContentType;
+    HYDRA_SYSTEM_LANGUAGE_AMERICAN_ENGLISH,
+    HYDRA_SYSTEM_LANGUAGE_BRITISH_ENGLISH,
+    HYDRA_SYSTEM_LANGUAGE_JAPANESE,
+    HYDRA_SYSTEM_LANGUAGE_FRENCH,
+    HYDRA_SYSTEM_LANGUAGE_GERMAN,
+    HYDRA_SYSTEM_LANGUAGE_LATIN_AMERICAN_SPANISH,
+    HYDRA_SYSTEM_LANGUAGE_SPANISH,
+    HYDRA_SYSTEM_LANGUAGE_ITALIAN,
+    HYDRA_SYSTEM_LANGUAGE_DUTCH,
+    HYDRA_SYSTEM_LANGUAGE_CANADIAN_FRENCH,
+    HYDRA_SYSTEM_LANGUAGE_PORUGUESE,
+    HYDRA_SYSTEM_LANGUAGE_RUSSIAN,
+    HYDRA_SYSTEM_LANGUAGE_KOREAN,
+    HYDRA_SYSTEM_LANGUAGE_TRADITIONAL_CHINESE,
+    HYDRA_SYSTEM_LANGUAGE_SIMPLIFIED_CHINESE,
+    HYDRA_SYSTEM_LANGUAGE_BRAZILIAN_PORTUGUESE,
+    HYDRA_SYSTEM_LANGUAGE_POLISH,
+    HYDRA_SYSTEM_LANGUAGE_THAI,
+} HydraSystemLanguage;
 
 typedef enum : uint32_t {
-    HYDRA_LOG_OUTPUT_INVALID = 0,
-
     HYDRA_LOG_OUTPUT_NONE,
     HYDRA_LOG_OUTPUT_STD_OUT,
     HYDRA_LOG_OUTPUT_FILE,
@@ -131,6 +129,15 @@ typedef enum : uint32_t {
     HYDRA_DEBUGGER_THREAD_STATUS_RUNNING,
     HYDRA_DEBUGGER_THREAD_STATUS_BREAK,
 } HydraDebuggerThreadStatus;
+
+typedef enum : uint32_t {
+    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_PROGRAM = 0,
+    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_META = 1,
+    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_CONTROL = 2,
+    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_MANUAL = 3,
+    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_DATA = 4,
+    HYDRA_CONTENT_ARCHIVE_CONTENT_TYPE_PUBLIC_DATA = 5,
+} HydraContentArchiveContentType;
 
 // String list
 __attribute__((returns_nonnull)) void* hydra_create_string_list();
@@ -190,6 +197,7 @@ uint32_t* hydra_config_get_display_resolution();
 hydra_uint2* hydra_config_get_custom_display_resolution();
 uint32_t* hydra_config_get_audio_backend();
 hydra_u128* hydra_config_get_user_id();
+uint32_t* hydra_config_get_system_language();
 hydra_string hydra_config_get_firmware_path();
 void hydra_config_set_firmware_path(hydra_string value);
 hydra_string hydra_config_get_sd_card_path();
@@ -280,7 +288,7 @@ const void* hydra_loader_plugin_get_option_config(const void* plugin,
 
 // NACP
 void hydra_nacp_destroy(void* nacp);
-const void* hydra_nacp_get_title(void* nacp);
+const void* hydra_nacp_get_title(void* nacp, HydraSystemLanguage lang);
 hydra_string hydra_nacp_get_display_version(void* nacp);
 
 // NACP title
@@ -579,6 +587,9 @@ uint32_t hydra_texture_descriptor_get_height(const void* descriptor);
 uint32_t hydra_texture_descriptor_get_depth(const void* descriptor);
 uint32_t hydra_texture_descriptor_get_level_count(const void* descriptor);
 uint32_t hydra_texture_descriptor_get_layer_count(const void* descriptor);
+uint32_t hydra_texture_descriptor_get_block_width_gobs(const void* descriptor);
+uint32_t hydra_texture_descriptor_get_block_height_gobs(const void* descriptor);
+uint32_t hydra_texture_descriptor_get_block_depth_gobs(const void* descriptor);
 uint64_t hydra_texture_descriptor_get_layer_size(const void* descriptor);
 uint64_t hydra_texture_descriptor_get_size(const void* descriptor);
 

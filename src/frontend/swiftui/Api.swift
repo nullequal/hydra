@@ -418,6 +418,10 @@ func hydraConfigGetUserId() -> UnsafeMutablePointer<hydra_u128> {
     hydra_config_get_user_id()
 }
 
+func hydraConfigGetSystemLanguage() -> UnsafeMutablePointer<UInt32> {
+    hydra_config_get_system_language()
+}
+
 func hydraConfigGetFirmwarePath() -> String {
     String.init(withHydraString: hydra_config_get_firmware_path())
 }
@@ -757,8 +761,8 @@ struct HydraNacp: MutableHandleStruct {
         self.handle = handle
     }
 
-    var title: HydraNacpTitle {
-        HydraNacpTitle(handle: hydra_nacp_get_title(self.handle))
+    func getTitle(language: HydraSystemLanguage) -> HydraNacpTitle {
+        return HydraNacpTitle(handle: hydra_nacp_get_title(self.handle, language))
     }
 
     var displayVersion: String {
@@ -1379,6 +1383,18 @@ struct HydraTextureDescriptor: HandleStruct {
 
     var layerCount: UInt32 {
         hydra_texture_descriptor_get_layer_count(self.handle)
+    }
+
+    var blockWidthGobs: UInt32 {
+        hydra_texture_descriptor_get_block_width_gobs(self.handle)
+    }
+
+    var blockHeightGobs: UInt32 {
+        hydra_texture_descriptor_get_block_height_gobs(self.handle)
+    }
+
+    var blockDepthGobs: UInt32 {
+        hydra_texture_descriptor_get_block_depth_gobs(self.handle)
     }
 
     var layerSize: UInt64 {

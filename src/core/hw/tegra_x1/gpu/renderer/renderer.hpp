@@ -32,6 +32,14 @@ struct Info {
     }
 };
 
+enum class MemoryInvalidationScope {
+    None = 0,
+    BufferCache = BIT(0),
+    TextureCache = BIT(1),
+    ShaderCache = BIT(2),
+};
+ENABLE_ENUM_BITWISE_OPERATORS(MemoryInvalidationScope)
+
 class IRenderer {
   public:
     IRenderer()
@@ -40,11 +48,24 @@ class IRenderer {
           index_cache(*this) {}
     virtual ~IRenderer() {}
 
-    // TODO: make this thread safe
-    void InvalidateMemory(Range<uptr> range) {
-        buffer_cache.InvalidateMemory(range);
-        texture_cache.InvalidateMemory(range);
-        // TODO: shader cache
+    void InvalidateMemory(
+        Range<uptr> range,
+        MemoryInvalidationScope scope = MemoryInvalidationScope::BufferCache |
+                                        MemoryInvalidationScope::TextureCache |
+                                        MemoryInvalidationScope::ShaderCache) {
+        if (any(scope & MemoryInvalidationScope::BufferCache)) {
+            std::scoped_lock lock(buffer_cache.GetMutex());
+            buffer_cache.InvalidateMemory(range);
+        }
+
+        if (any(scope & MemoryInvalidationScope::TextureCache)) {
+            std::scoped_lock lock(texture_cache.GetMutex());
+            texture_cache.InvalidateMemory(range);
+        }
+
+        if (any(scope & MemoryInvalidationScope::ShaderCache)) {
+            // TODO
+        }
     }
 
     // Surface
@@ -59,9 +80,9 @@ class IRenderer {
     // Texture
     virtual ITexture* CreateTexture(const TextureDescriptor& descriptor) = 0;
     virtual void BlitTexture(ICommandBuffer* command_buffer, ITextureView* src,
-                             float3 src_origin, usize3 src_size, u32 src_level,
+                             float3 src_origin, uint3 src_size, u32 src_level,
                              u32 src_layer, ITextureView* dst,
-                             float3 dst_origin, usize3 dst_size, u32 dst_level,
+                             float3 dst_origin, uint3 dst_size, u32 dst_level,
                              u32 dst_layer, u32 level_count,
                              u32 layer_count) = 0;
 
