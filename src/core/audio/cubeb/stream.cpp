@@ -2,6 +2,10 @@
 
 #include "core/audio/cubeb/core.hpp"
 
+#ifdef PLATFORM_WINDOWS
+#include <winscard.h>
+#endif
+
 namespace hydra::audio::cubeb {
 
 namespace {
@@ -31,6 +35,9 @@ Stream::Stream(Core& core_, PcmFormat format, u32 sample_rate,
                buffer_finished_callback_fn_t buffer_finished_callback)
     : IStream(format, sample_rate, channel_count, buffer_finished_callback),
       core{core_} {
+#ifdef PLATFORM_WINDOWS
+    CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+#endif
     // TODO: allow different channel counts
     if (channel_count != 2)
         LOG_NOT_IMPLEMENTED(Cubeb, "Channel count {}", channel_count);

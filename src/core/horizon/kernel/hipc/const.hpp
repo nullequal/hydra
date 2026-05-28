@@ -51,7 +51,7 @@ struct Header {
     u32 recv_static_mode : 4;
     u32 padding : 6;
     u32 recv_list_offset : 11; // Unused.
-    bool has_special_header : 1;
+    u32 has_special_header : 1;
 };
 
 // From https://github.com/switchbrew/libnx

@@ -256,10 +256,15 @@ GdbServer::GdbServer(System& system_, Debugger& debugger_)
     : system{system_}, debugger{debugger_} {
     const u16 port = CONFIG_INSTANCE.GetGdbPort();
 
+#ifdef PLATFORM_WINDOWS
+    WSADATA data;
+    WSAStartup(MAKEWORD(2, 2), &data);
+#endif
+
     // Create the socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == INVALID_SOCK) {
-        LOG_ERROR(Debugger, "Failed to create GDB socket");
+        LOG_ERROR(Debugger, "Failed to create GDB socket {}", WSAGetLastError());
         return;
     }
 
